@@ -1,8 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { motion, useMotionValue, useTransform, animate } from "framer-motion";
-import { useEffect, useState } from "react";
-import { AlertTriangle, CheckCircle2, Copy, Lock, Download, Sparkles } from "lucide-react";
-import { MOCK_CV_SCORE, MOCK_TARGET } from "@/lib/mockData";
+import { motion, useMotionValue, useTransform, animate, AnimatePresence } from "framer-motion";
+import { useEffect, useRef, useState } from "react";
+import { AlertTriangle, CheckCircle2, Copy, Lock, Download, Sparkles, UploadCloud, FileText, Loader2 } from "lucide-react";
+import { MOCK_CV_SCORE, MOCK_TARGET, MOCK_USER } from "@/lib/mockData";
 
 export const Route = createFileRoute("/dashboard/analysis")({
   component: Analysis,
