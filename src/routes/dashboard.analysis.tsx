@@ -76,9 +76,168 @@ function Bar({ name, score, status }: { name: string; score: number; status: "go
   );
 }
 
+type Stage = "idle" | "uploading" | "parsing" | "analyzing" | "done";
+
 function Analysis() {
   const [improved, setImproved] = useState(MOCK_CV_SCORE.improvedSummary);
   const [copied, setCopied] = useState(false);
+  const [stage, setStage] = useState<Stage>("idle");
+  const [fileName, setFileName] = useState<string>("");
+  const [progress, setProgress] = useState(0);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  const startSimulation = (name: string) => {
+    setFileName(name);
+    setStage("uploading");
+    setProgress(0);
+    let p = 0;
+    const up = setInterval(() => {
+      p += Math.random() * 18 + 8;
+      if (p >= 100) {
+        p = 100;
+        setProgress(100);
+        clearInterval(up);
+        setStage("parsing");
+        setTimeout(() => setStage("analyzing"), 1100);
+        setTimeout(() => setStage("done"), 2600);
+      } else {
+        setProgress(Math.round(p));
+      }
+    }, 220);
+  };
+
+  const onFile = (f?: File | null) => {
+    if (!f) return;
+    startSimulation(f.name);
+  };
+
+  if (stage !== "done") {
+    return (
+      <div className="mx-auto max-w-3xl px-6 py-10">
+        <p className="label-tag text-primary">Análisis de CV con IA</p>
+        <h1 className="mt-1 text-2xl font-semibold tracking-tight md:text-3xl">
+          Sube tu CV para analizarlo frente a {MOCK_TARGET.company}
+        </h1>
+        <p className="mt-1 text-sm text-muted-foreground">
+          Aceptamos PDF o DOCX. Lo procesamos con IA y te damos un puntaje en segundos.
+        </p>
+
+        <AnimatePresence mode="wait">
+          {stage === "idle" && (
+            <motion.div
+              key="idle"
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0 }}
+              className="mt-8"
+            >
+              <div
+                onClick={() => inputRef.current?.click()}
+                onDragOver={(e) => e.preventDefault()}
+                onDrop={(e) => {
+                  e.preventDefault();
+                  onFile(e.dataTransfer.files?.[0]);
+                }}
+                className="surface-card flex cursor-pointer flex-col items-center justify-center p-10 text-center transition hover:border-primary"
+                style={{ borderStyle: "dashed", borderWidth: 1.5 }}
+              >
+                <div className="rounded-full bg-primary/15 p-4 text-primary">
+                  <UploadCloud className="h-7 w-7" />
+                </div>
+                <p className="mt-4 font-medium">Arrastra tu CV aquí o haz clic para seleccionar</p>
+                <p className="mt-1 text-xs text-muted-foreground">PDF o DOCX · máximo 5 MB</p>
+                <input
+                  ref={inputRef}
+                  type="file"
+                  accept=".pdf,.docx"
+                  className="hidden"
+                  onChange={(e) => onFile(e.target.files?.[0])}
+                />
+                <button
+                  type="button"
+                  className="mt-5 inline-flex items-center gap-2 rounded-full bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground hover:opacity-90 transition"
+                >
+                  <UploadCloud className="h-4 w-4" /> Subir CV
+                </button>
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    startSimulation(`CV_${MOCK_USER.fullName.replace(" ", "_")}.pdf`);
+                  }}
+                  className="mt-3 text-xs text-muted-foreground underline-offset-4 hover:text-primary hover:underline"
+                >
+                  o probar con un CV de ejemplo
+                </button>
+              </div>
+            </motion.div>
+          )}
+
+          {(stage === "uploading" || stage === "parsing" || stage === "analyzing") && (
+            <motion.div
+              key="progress"
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0 }}
+              className="mt-8 surface-card p-6"
+            >
+              <div className="flex items-center gap-3">
+                <div className="rounded-lg bg-primary/15 p-2.5 text-primary">
+                  <FileText className="h-5 w-5" />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p className="truncate text-sm font-medium">{fileName}</p>
+                  <p className="text-xs text-muted-foreground">
+                    {stage === "uploading" && `Subiendo... ${progress}%`}
+                    {stage === "parsing" && "Leyendo contenido del CV..."}
+                    {stage === "analyzing" && `Analizando con IA frente a ${MOCK_TARGET.company}...`}
+                  </p>
+                </div>
+                {stage !== "uploading" && <Loader2 className="h-4 w-4 animate-spin text-primary" />}
+              </div>
+
+              <div className="mt-4 h-1.5 w-full overflow-hidden rounded-full bg-border">
+                <motion.div
+                  className="h-full bg-primary"
+                  initial={false}
+                  animate={{
+                    width:
+                      stage === "uploading" ? `${progress}%` : stage === "parsing" ? "70%" : "95%",
+                  }}
+                  transition={{ duration: 0.4, ease: "easeOut" }}
+                />
+              </div>
+
+              <ul className="mt-5 space-y-2 text-sm">
+                {[
+                  { k: "uploading", label: "Subir archivo" },
+                  { k: "parsing", label: "Extraer texto del CV" },
+                  { k: "analyzing", label: "Analizar con IA" },
+                ].map((s, i) => {
+                  const order = ["uploading", "parsing", "analyzing"];
+                  const currentIdx = order.indexOf(stage);
+                  const done = i < currentIdx;
+                  const active = i === currentIdx;
+                  return (
+                    <li key={s.k} className="flex items-center gap-2">
+                      {done ? (
+                        <CheckCircle2 className="h-4 w-4 text-success" />
+                      ) : active ? (
+                        <Loader2 className="h-4 w-4 animate-spin text-primary" />
+                      ) : (
+                        <div className="h-4 w-4 rounded-full border border-border" />
+                      )}
+                      <span className={done || active ? "" : "text-muted-foreground"}>{s.label}</span>
+                    </li>
+                  );
+                })}
+              </ul>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+    );
+  }
 
   return (
     <div className="mx-auto max-w-5xl px-6 py-10">
