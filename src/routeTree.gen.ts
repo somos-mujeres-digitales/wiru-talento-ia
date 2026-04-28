@@ -13,6 +13,11 @@ import { Route as OnboardingRouteImport } from './routes/onboarding'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as DashboardIndexRouteImport } from './routes/dashboard.index'
+import { Route as DashboardVacantesRouteImport } from './routes/dashboard.vacantes'
+import { Route as DashboardPostulacionesRouteImport } from './routes/dashboard.postulaciones'
+import { Route as DashboardEntrevistasRouteImport } from './routes/dashboard.entrevistas'
+import { Route as DashboardCvRouteImport } from './routes/dashboard.cv'
+import { Route as DashboardAnalysisRouteImport } from './routes/dashboard.analysis'
 
 const OnboardingRoute = OnboardingRouteImport.update({
   id: '/onboarding',
@@ -34,16 +39,51 @@ const DashboardIndexRoute = DashboardIndexRouteImport.update({
   path: '/',
   getParentRoute: () => DashboardRoute,
 } as any)
+const DashboardVacantesRoute = DashboardVacantesRouteImport.update({
+  id: '/vacantes',
+  path: '/vacantes',
+  getParentRoute: () => DashboardRoute,
+} as any)
+const DashboardPostulacionesRoute = DashboardPostulacionesRouteImport.update({
+  id: '/postulaciones',
+  path: '/postulaciones',
+  getParentRoute: () => DashboardRoute,
+} as any)
+const DashboardEntrevistasRoute = DashboardEntrevistasRouteImport.update({
+  id: '/entrevistas',
+  path: '/entrevistas',
+  getParentRoute: () => DashboardRoute,
+} as any)
+const DashboardCvRoute = DashboardCvRouteImport.update({
+  id: '/cv',
+  path: '/cv',
+  getParentRoute: () => DashboardRoute,
+} as any)
+const DashboardAnalysisRoute = DashboardAnalysisRouteImport.update({
+  id: '/analysis',
+  path: '/analysis',
+  getParentRoute: () => DashboardRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRouteWithChildren
   '/onboarding': typeof OnboardingRoute
+  '/dashboard/analysis': typeof DashboardAnalysisRoute
+  '/dashboard/cv': typeof DashboardCvRoute
+  '/dashboard/entrevistas': typeof DashboardEntrevistasRoute
+  '/dashboard/postulaciones': typeof DashboardPostulacionesRoute
+  '/dashboard/vacantes': typeof DashboardVacantesRoute
   '/dashboard/': typeof DashboardIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/onboarding': typeof OnboardingRoute
+  '/dashboard/analysis': typeof DashboardAnalysisRoute
+  '/dashboard/cv': typeof DashboardCvRoute
+  '/dashboard/entrevistas': typeof DashboardEntrevistasRoute
+  '/dashboard/postulaciones': typeof DashboardPostulacionesRoute
+  '/dashboard/vacantes': typeof DashboardVacantesRoute
   '/dashboard': typeof DashboardIndexRoute
 }
 export interface FileRoutesById {
@@ -51,14 +91,46 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRouteWithChildren
   '/onboarding': typeof OnboardingRoute
+  '/dashboard/analysis': typeof DashboardAnalysisRoute
+  '/dashboard/cv': typeof DashboardCvRoute
+  '/dashboard/entrevistas': typeof DashboardEntrevistasRoute
+  '/dashboard/postulaciones': typeof DashboardPostulacionesRoute
+  '/dashboard/vacantes': typeof DashboardVacantesRoute
   '/dashboard/': typeof DashboardIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/dashboard' | '/onboarding' | '/dashboard/'
+  fullPaths:
+    | '/'
+    | '/dashboard'
+    | '/onboarding'
+    | '/dashboard/analysis'
+    | '/dashboard/cv'
+    | '/dashboard/entrevistas'
+    | '/dashboard/postulaciones'
+    | '/dashboard/vacantes'
+    | '/dashboard/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/onboarding' | '/dashboard'
-  id: '__root__' | '/' | '/dashboard' | '/onboarding' | '/dashboard/'
+  to:
+    | '/'
+    | '/onboarding'
+    | '/dashboard/analysis'
+    | '/dashboard/cv'
+    | '/dashboard/entrevistas'
+    | '/dashboard/postulaciones'
+    | '/dashboard/vacantes'
+    | '/dashboard'
+  id:
+    | '__root__'
+    | '/'
+    | '/dashboard'
+    | '/onboarding'
+    | '/dashboard/analysis'
+    | '/dashboard/cv'
+    | '/dashboard/entrevistas'
+    | '/dashboard/postulaciones'
+    | '/dashboard/vacantes'
+    | '/dashboard/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -97,14 +169,59 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardIndexRouteImport
       parentRoute: typeof DashboardRoute
     }
+    '/dashboard/vacantes': {
+      id: '/dashboard/vacantes'
+      path: '/vacantes'
+      fullPath: '/dashboard/vacantes'
+      preLoaderRoute: typeof DashboardVacantesRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/dashboard/postulaciones': {
+      id: '/dashboard/postulaciones'
+      path: '/postulaciones'
+      fullPath: '/dashboard/postulaciones'
+      preLoaderRoute: typeof DashboardPostulacionesRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/dashboard/entrevistas': {
+      id: '/dashboard/entrevistas'
+      path: '/entrevistas'
+      fullPath: '/dashboard/entrevistas'
+      preLoaderRoute: typeof DashboardEntrevistasRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/dashboard/cv': {
+      id: '/dashboard/cv'
+      path: '/cv'
+      fullPath: '/dashboard/cv'
+      preLoaderRoute: typeof DashboardCvRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/dashboard/analysis': {
+      id: '/dashboard/analysis'
+      path: '/analysis'
+      fullPath: '/dashboard/analysis'
+      preLoaderRoute: typeof DashboardAnalysisRouteImport
+      parentRoute: typeof DashboardRoute
+    }
   }
 }
 
 interface DashboardRouteChildren {
+  DashboardAnalysisRoute: typeof DashboardAnalysisRoute
+  DashboardCvRoute: typeof DashboardCvRoute
+  DashboardEntrevistasRoute: typeof DashboardEntrevistasRoute
+  DashboardPostulacionesRoute: typeof DashboardPostulacionesRoute
+  DashboardVacantesRoute: typeof DashboardVacantesRoute
   DashboardIndexRoute: typeof DashboardIndexRoute
 }
 
 const DashboardRouteChildren: DashboardRouteChildren = {
+  DashboardAnalysisRoute: DashboardAnalysisRoute,
+  DashboardCvRoute: DashboardCvRoute,
+  DashboardEntrevistasRoute: DashboardEntrevistasRoute,
+  DashboardPostulacionesRoute: DashboardPostulacionesRoute,
+  DashboardVacantesRoute: DashboardVacantesRoute,
   DashboardIndexRoute: DashboardIndexRoute,
 }
 
