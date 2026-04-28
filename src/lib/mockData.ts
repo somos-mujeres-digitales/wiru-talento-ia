@@ -155,11 +155,9 @@ export const MOCK_APPLICATIONS: Array<{
 ];
 
 export const MOCK_INTERVIEW_QUESTIONS = [
-  "Cuéntame sobre ti y por qué quieres trabajar en Caja Cusco.",
-  "¿Cómo manejarías a un cliente molesto que lleva 30 minutos esperando?",
-  "Describe una situación donde tuvieras que trabajar bajo presión.",
-  "¿Qué sabes sobre los productos de Caja Cusco?",
-  "¿Dónde te ves en 2 años dentro de la empresa?",
+  "Cuéntame sobre ti: ¿quién eres, qué estudiaste y por qué quieres trabajar en Caja Cusco?",
+  "Cuéntame una experiencia de liderazgo: ¿cómo la resolviste, primero como integrante del equipo y luego como líder?",
+  "¿Cómo trabajas en equipo? Dame un ejemplo concreto donde tuvieron una diferencia y cómo llegaron a un acuerdo.",
 ];
 
 export const SECTORS = [
