@@ -10,9 +10,11 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as OnboardingRouteImport } from './routes/onboarding'
+import { Route as EmpresasRouteImport } from './routes/empresas'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as DashboardIndexRouteImport } from './routes/dashboard.index'
+import { Route as EmpresasDashboardRouteImport } from './routes/empresas.dashboard'
 import { Route as DashboardVacantesRouteImport } from './routes/dashboard.vacantes'
 import { Route as DashboardPostulacionesRouteImport } from './routes/dashboard.postulaciones'
 import { Route as DashboardEntrevistasRouteImport } from './routes/dashboard.entrevistas'
@@ -22,6 +24,11 @@ import { Route as DashboardAnalysisRouteImport } from './routes/dashboard.analys
 const OnboardingRoute = OnboardingRouteImport.update({
   id: '/onboarding',
   path: '/onboarding',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EmpresasRoute = EmpresasRouteImport.update({
+  id: '/empresas',
+  path: '/empresas',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DashboardRoute = DashboardRouteImport.update({
@@ -38,6 +45,11 @@ const DashboardIndexRoute = DashboardIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => DashboardRoute,
+} as any)
+const EmpresasDashboardRoute = EmpresasDashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => EmpresasRoute,
 } as any)
 const DashboardVacantesRoute = DashboardVacantesRouteImport.update({
   id: '/vacantes',
@@ -68,34 +80,40 @@ const DashboardAnalysisRoute = DashboardAnalysisRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRouteWithChildren
+  '/empresas': typeof EmpresasRouteWithChildren
   '/onboarding': typeof OnboardingRoute
   '/dashboard/analysis': typeof DashboardAnalysisRoute
   '/dashboard/cv': typeof DashboardCvRoute
   '/dashboard/entrevistas': typeof DashboardEntrevistasRoute
   '/dashboard/postulaciones': typeof DashboardPostulacionesRoute
   '/dashboard/vacantes': typeof DashboardVacantesRoute
+  '/empresas/dashboard': typeof EmpresasDashboardRoute
   '/dashboard/': typeof DashboardIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/empresas': typeof EmpresasRouteWithChildren
   '/onboarding': typeof OnboardingRoute
   '/dashboard/analysis': typeof DashboardAnalysisRoute
   '/dashboard/cv': typeof DashboardCvRoute
   '/dashboard/entrevistas': typeof DashboardEntrevistasRoute
   '/dashboard/postulaciones': typeof DashboardPostulacionesRoute
   '/dashboard/vacantes': typeof DashboardVacantesRoute
+  '/empresas/dashboard': typeof EmpresasDashboardRoute
   '/dashboard': typeof DashboardIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRouteWithChildren
+  '/empresas': typeof EmpresasRouteWithChildren
   '/onboarding': typeof OnboardingRoute
   '/dashboard/analysis': typeof DashboardAnalysisRoute
   '/dashboard/cv': typeof DashboardCvRoute
   '/dashboard/entrevistas': typeof DashboardEntrevistasRoute
   '/dashboard/postulaciones': typeof DashboardPostulacionesRoute
   '/dashboard/vacantes': typeof DashboardVacantesRoute
+  '/empresas/dashboard': typeof EmpresasDashboardRoute
   '/dashboard/': typeof DashboardIndexRoute
 }
 export interface FileRouteTypes {
@@ -103,39 +121,46 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/dashboard'
+    | '/empresas'
     | '/onboarding'
     | '/dashboard/analysis'
     | '/dashboard/cv'
     | '/dashboard/entrevistas'
     | '/dashboard/postulaciones'
     | '/dashboard/vacantes'
+    | '/empresas/dashboard'
     | '/dashboard/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/empresas'
     | '/onboarding'
     | '/dashboard/analysis'
     | '/dashboard/cv'
     | '/dashboard/entrevistas'
     | '/dashboard/postulaciones'
     | '/dashboard/vacantes'
+    | '/empresas/dashboard'
     | '/dashboard'
   id:
     | '__root__'
     | '/'
     | '/dashboard'
+    | '/empresas'
     | '/onboarding'
     | '/dashboard/analysis'
     | '/dashboard/cv'
     | '/dashboard/entrevistas'
     | '/dashboard/postulaciones'
     | '/dashboard/vacantes'
+    | '/empresas/dashboard'
     | '/dashboard/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   DashboardRoute: typeof DashboardRouteWithChildren
+  EmpresasRoute: typeof EmpresasRouteWithChildren
   OnboardingRoute: typeof OnboardingRoute
 }
 
@@ -146,6 +171,13 @@ declare module '@tanstack/react-router' {
       path: '/onboarding'
       fullPath: '/onboarding'
       preLoaderRoute: typeof OnboardingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/empresas': {
+      id: '/empresas'
+      path: '/empresas'
+      fullPath: '/empresas'
+      preLoaderRoute: typeof EmpresasRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/dashboard': {
@@ -168,6 +200,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/dashboard/'
       preLoaderRoute: typeof DashboardIndexRouteImport
       parentRoute: typeof DashboardRoute
+    }
+    '/empresas/dashboard': {
+      id: '/empresas/dashboard'
+      path: '/dashboard'
+      fullPath: '/empresas/dashboard'
+      preLoaderRoute: typeof EmpresasDashboardRouteImport
+      parentRoute: typeof EmpresasRoute
     }
     '/dashboard/vacantes': {
       id: '/dashboard/vacantes'
@@ -229,9 +268,22 @@ const DashboardRouteWithChildren = DashboardRoute._addFileChildren(
   DashboardRouteChildren,
 )
 
+interface EmpresasRouteChildren {
+  EmpresasDashboardRoute: typeof EmpresasDashboardRoute
+}
+
+const EmpresasRouteChildren: EmpresasRouteChildren = {
+  EmpresasDashboardRoute: EmpresasDashboardRoute,
+}
+
+const EmpresasRouteWithChildren = EmpresasRoute._addFileChildren(
+  EmpresasRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   DashboardRoute: DashboardRouteWithChildren,
+  EmpresasRoute: EmpresasRouteWithChildren,
   OnboardingRoute: OnboardingRoute,
 }
 export const routeTree = rootRouteImport
