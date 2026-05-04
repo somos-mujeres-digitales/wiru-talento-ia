@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
-import { Mic, Clock, Sparkles, ArrowRight, RotateCcw } from "lucide-react";
+import { Mic, MicOff, Clock, Sparkles, ArrowRight, RotateCcw, Volume2, AlertCircle } from "lucide-react";
 import { MOCK_INTERVIEW_QUESTIONS, MOCK_TARGET } from "@/lib/mockData";
 
 export const Route = createFileRoute("/dashboard/entrevistas")({
@@ -10,6 +10,44 @@ export const Route = createFileRoute("/dashboard/entrevistas")({
 
 type Phase = "setup" | "live" | "done";
 
+// Web Speech API types (vendor-prefixed)
+type SpeechRecognitionLike = {
+  lang: string;
+  continuous: boolean;
+  interimResults: boolean;
+  onresult: ((e: any) => void) | null;
+  onerror: ((e: any) => void) | null;
+  onend: (() => void) | null;
+  start: () => void;
+  stop: () => void;
+};
+
+function getRecognition(): SpeechRecognitionLike | null {
+  if (typeof window === "undefined") return null;
+  const Ctor =
+    (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+  if (!Ctor) return null;
+  return new Ctor() as SpeechRecognitionLike;
+}
+
+function speak(text: string, onEnd?: () => void) {
+  if (typeof window === "undefined" || !("speechSynthesis" in window)) {
+    onEnd?.();
+    return;
+  }
+  window.speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(text);
+  u.lang = "es-PE";
+  u.rate = 1;
+  u.pitch = 1;
+  // Prefer Spanish voice if available
+  const voices = window.speechSynthesis.getVoices();
+  const esVoice = voices.find((v) => v.lang.toLowerCase().startsWith("es"));
+  if (esVoice) u.voice = esVoice;
+  u.onend = () => onEnd?.();
+  window.speechSynthesis.speak(u);
+}
+
 function Interviews() {
   const [phase, setPhase] = useState<Phase>("setup");
   const [difficulty, setDifficulty] = useState<"basico" | "intermedio" | "avanzado">("intermedio");
@@ -17,12 +55,38 @@ function Interviews() {
   const [answers, setAnswers] = useState<string[]>([]);
   const [current, setCurrent] = useState("");
   const [seconds, setSeconds] = useState(0);
+  const [isListening, setIsListening] = useState(false);
+  const [isAgentSpeaking, setIsAgentSpeaking] = useState(false);
+  const [voiceSupported, setVoiceSupported] = useState(true);
+  const [voiceError, setVoiceError] = useState<string | null>(null);
+  const recognitionRef = useRef<SpeechRecognitionLike | null>(null);
+  const baseTextRef = useRef<string>("");
+
+  // Init voices list (Chrome lazy-loads)
+  useEffect(() => {
+    if (typeof window !== "undefined" && "speechSynthesis" in window) {
+      window.speechSynthesis.getVoices();
+      window.speechSynthesis.onvoiceschanged = () => window.speechSynthesis.getVoices();
+    }
+    setVoiceSupported(!!getRecognition());
+  }, []);
 
   useEffect(() => {
     if (phase !== "live") return;
     const t = setInterval(() => setSeconds((s) => s + 1), 1000);
     return () => clearInterval(t);
   }, [phase]);
+
+  // Speak each new question automatically
+  useEffect(() => {
+    if (phase !== "live") return;
+    setIsAgentSpeaking(true);
+    speak(MOCK_INTERVIEW_QUESTIONS[qIdx], () => setIsAgentSpeaking(false));
+    return () => {
+      if (typeof window !== "undefined") window.speechSynthesis?.cancel();
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [phase, qIdx]);
 
   const total = MOCK_INTERVIEW_QUESTIONS.length;
   const fmt = `${String(Math.floor(seconds / 60)).padStart(2, "0")}:${String(seconds % 60).padStart(2, "0")}`;
@@ -35,7 +99,67 @@ function Interviews() {
     setSeconds(0);
   };
 
+  const stopListening = () => {
+    try {
+      recognitionRef.current?.stop();
+    } catch {}
+    setIsListening(false);
+  };
+
+  const startListening = () => {
+    setVoiceError(null);
+    const rec = getRecognition();
+    if (!rec) {
+      setVoiceError("Tu navegador no soporta reconocimiento de voz. Usa Chrome o Edge en escritorio.");
+      return;
+    }
+    rec.lang = "es-PE";
+    rec.continuous = true;
+    rec.interimResults = true;
+    baseTextRef.current = current ? current.trimEnd() + " " : "";
+
+    rec.onresult = (e: any) => {
+      let finalText = "";
+      let interim = "";
+      for (let i = e.resultIndex; i < e.results.length; i++) {
+        const t = e.results[i][0].transcript;
+        if (e.results[i].isFinal) finalText += t + " ";
+        else interim += t;
+      }
+      setCurrent(baseTextRef.current + finalText + interim);
+      if (finalText) baseTextRef.current += finalText;
+    };
+    rec.onerror = (e: any) => {
+      const code = e?.error || "error";
+      const map: Record<string, string> = {
+        "not-allowed": "Necesitamos permiso de micrófono para escucharte.",
+        "no-speech": "No te escuché. Inténtalo de nuevo.",
+        "audio-capture": "No detecto un micrófono conectado.",
+      };
+      setVoiceError(map[code] || "Hubo un problema con el micrófono.");
+      setIsListening(false);
+    };
+    rec.onend = () => setIsListening(false);
+
+    recognitionRef.current = rec;
+    try {
+      rec.start();
+      setIsListening(true);
+    } catch {
+      setIsListening(false);
+    }
+  };
+
+  const replayQuestion = () => {
+    if (typeof window === "undefined") return;
+    window.speechSynthesis.cancel();
+    setIsAgentSpeaking(true);
+    speak(MOCK_INTERVIEW_QUESTIONS[qIdx], () => setIsAgentSpeaking(false));
+  };
+
   const nextQ = () => {
+    stopListening();
+    if (typeof window !== "undefined") window.speechSynthesis?.cancel();
     const next = [...answers, current];
     setAnswers(next);
     setCurrent("");
@@ -50,7 +174,7 @@ function Interviews() {
         Simula tu entrevista en {MOCK_TARGET.company}
       </h1>
       <p className="mt-1 text-sm text-muted-foreground">
-        Practica con IA antes del día real. Las preguntas están basadas en el proceso real de la empresa.
+        Practica con voz real: la IA te hace la pregunta en voz alta y tú respondes hablando.
       </p>
 
       {phase === "setup" && (
@@ -90,6 +214,16 @@ function Interviews() {
                 ))}
               </div>
             </div>
+
+            {!voiceSupported && (
+              <div className="mt-4 flex items-start gap-2 rounded-lg border border-warning/40 bg-warning/10 p-3 text-xs text-warning">
+                <AlertCircle className="h-4 w-4 shrink-0 mt-0.5" />
+                <span>
+                  Tu navegador no soporta reconocimiento de voz. Aún podrás escuchar las preguntas y escribir tus respuestas. Para voz completa, usa Chrome o Edge.
+                </span>
+              </div>
+            )}
+
             <button
               onClick={start}
               className="mt-6 inline-flex items-center gap-2 rounded-full bg-primary px-5 py-3 text-sm font-medium text-primary-foreground hover:opacity-90 transition"
@@ -100,9 +234,9 @@ function Interviews() {
 
           <div className="grid gap-3 sm:grid-cols-3">
             {[
-              { icon: Clock, t: "Duración aprox.", v: "10 min" },
-              { icon: Sparkles, t: "Preguntas", v: "5–8" },
-              { icon: Mic, t: "Feedback", v: "Inmediato" },
+              { icon: Clock, t: "Duración aprox.", v: "5–10 min" },
+              { icon: Sparkles, t: "Preguntas", v: `${total} clásicas` },
+              { icon: Mic, t: "Modo", v: "Voz + texto" },
             ].map((c) => (
               <div key={c.t} className="surface-card flex items-center gap-3 p-4">
                 <div className="rounded-lg bg-primary/10 p-2 text-primary">
@@ -138,23 +272,78 @@ function Interviews() {
             animate={{ opacity: 1, y: 0 }}
             className="mt-6 surface-card p-6"
           >
-            <p className="label-tag text-primary">Entrevistador IA</p>
+            <div className="flex items-center justify-between">
+              <p className="label-tag text-primary">Entrevistador IA</p>
+              <button
+                onClick={replayQuestion}
+                className="inline-flex items-center gap-1.5 rounded-full border border-border bg-surface px-3 py-1.5 text-xs text-muted-foreground hover:text-foreground hover:bg-surface-elevated transition"
+              >
+                <Volume2 className={`h-3.5 w-3.5 ${isAgentSpeaking ? "text-primary" : ""}`} />
+                {isAgentSpeaking ? "Hablando..." : "Repetir pregunta"}
+              </button>
+            </div>
             <h2 className="mt-2 text-xl font-medium leading-snug">
               {MOCK_INTERVIEW_QUESTIONS[qIdx]}
             </h2>
+            {isAgentSpeaking && (
+              <div className="mt-4 flex items-center gap-1.5">
+                {[0, 1, 2, 3, 4].map((i) => (
+                  <motion.span
+                    key={i}
+                    className="block w-1 rounded-full bg-primary"
+                    animate={{ height: ["6px", "18px", "6px"] }}
+                    transition={{ duration: 0.8, repeat: Infinity, delay: i * 0.1 }}
+                  />
+                ))}
+                <span className="ml-2 text-xs text-muted-foreground">La IA te está hablando…</span>
+              </div>
+            )}
           </motion.div>
 
           <textarea
             value={current}
-            onChange={(e) => setCurrent(e.target.value)}
+            onChange={(e) => {
+              setCurrent(e.target.value);
+              baseTextRef.current = e.target.value;
+            }}
             rows={6}
-            placeholder="Escribe tu respuesta aquí..."
+            placeholder={isListening ? "Escuchando... habla con naturalidad" : "Habla pulsando el botón, o escribe aquí tu respuesta..."}
             className="mt-4 w-full resize-none rounded-xl border border-border bg-surface p-4 text-sm outline-none focus:border-primary"
           />
 
-          <div className="mt-3 flex items-center justify-between">
-            <button className="inline-flex items-center gap-2 rounded-full border border-border bg-surface px-4 py-2 text-sm hover:bg-surface-elevated transition">
-              <Mic className="h-4 w-4 text-primary" /> Responder por voz
+          {voiceError && (
+            <div className="mt-2 flex items-center gap-2 rounded-lg border border-destructive/40 bg-destructive/10 px-3 py-2 text-xs text-destructive">
+              <AlertCircle className="h-3.5 w-3.5" />
+              {voiceError}
+            </div>
+          )}
+
+          <div className="mt-3 flex items-center justify-between gap-3 flex-wrap">
+            <button
+              onClick={isListening ? stopListening : startListening}
+              disabled={!voiceSupported || isAgentSpeaking}
+              className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm transition disabled:opacity-40 ${
+                isListening
+                  ? "bg-destructive text-destructive-foreground hover:opacity-90"
+                  : "border border-border bg-surface hover:bg-surface-elevated"
+              }`}
+            >
+              {isListening ? (
+                <>
+                  <MicOff className="h-4 w-4" /> Detener
+                </>
+              ) : (
+                <>
+                  <Mic className="h-4 w-4 text-primary" /> Responder por voz
+                </>
+              )}
+              {isListening && (
+                <motion.span
+                  className="ml-1 h-2 w-2 rounded-full bg-destructive-foreground"
+                  animate={{ opacity: [1, 0.3, 1] }}
+                  transition={{ duration: 1, repeat: Infinity }}
+                />
+              )}
             </button>
             <button
               onClick={nextQ}
@@ -199,6 +388,22 @@ function Interviews() {
               </div>
             ))}
           </div>
+
+          {answers.length > 0 && (
+            <div className="mt-6 surface-card p-5">
+              <p className="label-tag text-text-muted">Tus respuestas</p>
+              <div className="mt-3 space-y-4">
+                {answers.map((a, i) => (
+                  <div key={i}>
+                    <p className="text-xs text-muted-foreground">
+                      {i + 1}. {MOCK_INTERVIEW_QUESTIONS[i]}
+                    </p>
+                    <p className="mt-1 text-sm">{a || <span className="italic text-muted-foreground">(sin respuesta)</span>}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
           <div className="mt-6 flex flex-wrap gap-3">
             <button
