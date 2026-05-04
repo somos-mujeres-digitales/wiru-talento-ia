@@ -209,31 +209,74 @@ function Onboarding() {
                   )}
                 </div>
                 <p className="mt-6 text-sm text-muted-foreground">
-                  Solo necesitamos un correo para guardarlo.
+                  Crea tu cuenta para guardar tu progreso.
                 </p>
-                <div className="mt-6 space-y-3">
+                <div className="mt-6 space-y-3 text-left">
+                  <div>
+                    <label className="label-tag text-text-muted">Correo</label>
+                    <input
+                      type="email"
+                      autoComplete="email"
+                      value={email}
+                      onChange={(e) => {
+                        setEmail(e.target.value);
+                        if (errors.email) setErrors((p) => ({ ...p, email: undefined }));
+                      }}
+                      placeholder="tu.nombre@gmail.com"
+                      className={`mt-2 w-full rounded-xl border bg-surface px-4 py-3 text-sm outline-none transition focus:border-primary ${
+                        errors.email ? "border-destructive" : "border-border"
+                      }`}
+                    />
+                    {errors.email && (
+                      <p className="mt-1 text-xs text-destructive">{errors.email}</p>
+                    )}
+                  </div>
+                  <div>
+                    <label className="label-tag text-text-muted">Contraseña</label>
+                    <input
+                      type="password"
+                      autoComplete="new-password"
+                      value={password}
+                      onChange={(e) => {
+                        setPassword(e.target.value);
+                        if (errors.password) setErrors((p) => ({ ...p, password: undefined }));
+                      }}
+                      placeholder="Mínimo 6 caracteres"
+                      className={`mt-2 w-full rounded-xl border bg-surface px-4 py-3 text-sm outline-none transition focus:border-primary ${
+                        errors.password ? "border-destructive" : "border-border"
+                      }`}
+                    />
+                    {errors.password && (
+                      <p className="mt-1 text-xs text-destructive">{errors.password}</p>
+                    )}
+                  </div>
+
                   <button
-                    onClick={finish}
-                    className="flex w-full items-center justify-center gap-2 rounded-full bg-primary px-5 py-3 text-sm font-medium text-primary-foreground hover:opacity-90 transition"
-                  >
-                    <svg className="h-4 w-4" viewBox="0 0 24 24">
-                      <path
-                        fill="currentColor"
-                        d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09Z"
-                      />
-                      <path
-                        fill="currentColor"
-                        d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.99.66-2.25 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84A11 11 0 0 0 12 23Z"
-                      />
-                    </svg>
-                    Continuar con Google
-                  </button>
-                  <button
-                    onClick={finish}
-                    className="flex w-full items-center justify-center gap-2 rounded-full border border-border bg-surface px-5 py-3 text-sm hover:bg-surface-elevated transition"
+                    onClick={() => finish("email")}
+                    className="mt-2 flex w-full items-center justify-center gap-2 rounded-full bg-primary px-5 py-3 text-sm font-medium text-primary-foreground hover:opacity-90 transition"
                   >
                     <Mail className="h-4 w-4" />
-                    Continuar con correo
+                    Crear cuenta
+                  </button>
+
+                  <div className="relative my-2">
+                    <div className="absolute inset-0 flex items-center">
+                      <div className="w-full border-t border-border" />
+                    </div>
+                    <div className="relative flex justify-center">
+                      <span className="bg-background px-3 text-xs text-muted-foreground">o</span>
+                    </div>
+                  </div>
+
+                  <button
+                    onClick={() => finish("google")}
+                    className="flex w-full items-center justify-center gap-2 rounded-full border border-border bg-surface px-5 py-3 text-sm hover:bg-surface-elevated transition"
+                  >
+                    <svg className="h-4 w-4" viewBox="0 0 24 24">
+                      <path fill="currentColor" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09Z" />
+                      <path fill="currentColor" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.99.66-2.25 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84A11 11 0 0 0 12 23Z" />
+                    </svg>
+                    Continuar con Google
                   </button>
                 </div>
                 <p className="mt-4 text-xs text-text-muted">
