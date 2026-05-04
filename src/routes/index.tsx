@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { motion, AnimatePresence } from "framer-motion";
 import { useEffect, useState } from "react";
-import { ArrowRight, FileText, BarChart3, Mic, ListChecks, Check, Sparkles } from "lucide-react";
+import { ArrowRight, FileText, BarChart3, Mic, ListChecks, Check, Sparkles, Volume2, Brain, Building2, MessageSquare, Gauge, Radio } from "lucide-react";
 import { WiruLogo } from "@/components/WiruLogo";
 import { MOCK_COMPANIES } from "@/lib/mockData";
 
