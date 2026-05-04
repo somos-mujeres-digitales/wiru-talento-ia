@@ -15,15 +15,37 @@ function Onboarding() {
   const [name, setName] = useState("");
   const [sectors, setSectors] = useState<string[]>([]);
   const [stage, setStage] = useState<string | null>(null);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
 
   const next = () => setStep((s) => Math.min(s + 1, 4));
   const back = () => setStep((s) => Math.max(s - 1, 1));
 
-  const finish = () => {
+  const validate = () => {
+    const e: { email?: string; password?: string } = {};
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
+      e.email = "Ingresa un correo válido (ej: tu.nombre@gmail.com)";
+    }
+    if (password.length < 6) {
+      e.password = "Mínimo 6 caracteres";
+    }
+    setErrors(e);
+    return Object.keys(e).length === 0;
+  };
+
+  const finish = (provider: "google" | "email") => {
+    if (provider === "email" && !validate()) return;
     if (typeof window !== "undefined") {
       localStorage.setItem(
         "wiru_user",
-        JSON.stringify({ name: name || "María Fernanda", sectors, stage }),
+        JSON.stringify({
+          name: name || "María Fernanda",
+          sectors,
+          stage,
+          email: provider === "google" ? `${(name || "usuario").toLowerCase().replace(/\s+/g, ".")}@gmail.com` : email.trim(),
+          provider,
+        }),
       );
     }
     navigate({ to: "/dashboard" });
