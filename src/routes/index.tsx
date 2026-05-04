@@ -42,7 +42,7 @@ function Landing() {
           <WiruLogo />
           <nav className="hidden items-center gap-8 text-sm text-muted-foreground md:flex">
             <a href="#how" className="hover:text-foreground transition">Cómo funciona</a>
-            <a href="#empresas" className="hover:text-foreground transition">Empresas</a>
+            <a href="#entrevistas-ia" className="hover:text-foreground transition">Entrevistas IA</a>
             <a href="#planes" className="hover:text-foreground transition">Planes</a>
           </nav>
           <Link
