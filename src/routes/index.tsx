@@ -44,9 +44,6 @@ function Landing() {
             <a href="#how" className="hover:text-foreground transition">Cómo funciona</a>
             <a href="#entrevistas-ia" className="hover:text-foreground transition">Entrevistas IA</a>
             <a href="#planes" className="hover:text-foreground transition">Planes</a>
-            <Link to="/empresas" className="rounded-full border border-primary/40 bg-primary/10 px-3 py-1 text-primary hover:bg-primary/20 transition">
-              Para empresas
-            </Link>
           </nav>
           <Link
             to="/onboarding"
