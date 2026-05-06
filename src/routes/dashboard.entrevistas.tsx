@@ -128,6 +128,7 @@ function analyze(answer: string, durationSec: number, idx: number): AnswerAnalys
 }
 
 function Interviews() {
+  const [mode, setMode] = useState<"vapi" | "local">("vapi");
   const [phase, setPhase] = useState<Phase>("setup");
   const [difficulty, setDifficulty] = useState<"basico" | "intermedio" | "avanzado">("intermedio");
   const [qIdx, setQIdx] = useState(0);
