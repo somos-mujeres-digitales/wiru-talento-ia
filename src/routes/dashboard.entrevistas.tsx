@@ -560,7 +560,7 @@ function Interviews() {
         );
       })()}
 
-      {phase === "done" && (() => {
+      {mode === "local" && phase === "done" && (() => {
         const allAnalyses = answers.map((ans, i) => analyze(ans, durations[i] || 1, i));
         const avg = (k: keyof AnswerAnalysis["scores"]) =>
           Math.round(allAnalyses.reduce((s, x) => s + x.scores[k], 0) / Math.max(1, allAnalyses.length));
