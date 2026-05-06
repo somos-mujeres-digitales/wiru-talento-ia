@@ -325,7 +325,7 @@ function Interviews() {
         </div>
       )}
 
-      {phase === "live" && (
+      {mode === "local" && phase === "live" && (
         <div className="mt-8">
           <div className="flex items-center justify-between text-xs text-muted-foreground">
             <span>Pregunta {qIdx + 1} de {total} · <span className="text-primary">{MOCK_INTERVIEW_DETAILS[qIdx].intent}</span></span>
