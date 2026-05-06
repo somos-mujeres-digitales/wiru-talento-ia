@@ -447,7 +447,7 @@ function Interviews() {
         </div>
       )}
 
-      {phase === "review" && (() => {
+      {mode === "local" && phase === "review" && (() => {
         const a = analyze(answers[qIdx] || "", durations[qIdx] || 1, qIdx);
         const detail = MOCK_INTERVIEW_DETAILS[qIdx];
         return (
