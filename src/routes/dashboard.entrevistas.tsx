@@ -252,6 +252,25 @@ function Interviews() {
         IA con voz real, análisis vivo de tu respuesta y feedback estilo entrevistador profesional.
       </p>
 
+      <div className="mt-6 inline-flex rounded-full border border-border bg-surface p-1 text-sm">
+        <button onClick={() => setMode("vapi")}
+          className={`rounded-full px-4 py-1.5 transition ${mode === "vapi" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"}`}>
+          🎙 Voz IA real (VAPI)
+        </button>
+        <button onClick={() => setMode("local")}
+          className={`rounded-full px-4 py-1.5 transition ${mode === "local" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"}`}>
+          💬 Simulador local
+        </button>
+      </div>
+
+      {mode === "vapi" && (
+        <div className="mt-6">
+          <VapiInterview />
+        </div>
+      )}
+
+      {mode === "local" && (<></>)}
+
       {phase === "setup" && (
         <div className="mt-8 grid gap-6">
           <div className="surface-card p-6">
