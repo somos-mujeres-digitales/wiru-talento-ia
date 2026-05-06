@@ -11,7 +11,6 @@ import {
   MOCK_TARGET,
   SPANISH_FILLERS,
 } from "@/lib/mockData";
-import VapiInterview from "@/components/VapiInterview";
 
 export const Route = createFileRoute("/dashboard/entrevistas")({
   component: Interviews,
@@ -128,7 +127,6 @@ function analyze(answer: string, durationSec: number, idx: number): AnswerAnalys
 }
 
 function Interviews() {
-  const [mode, setMode] = useState<"vapi" | "local">("vapi");
   const [phase, setPhase] = useState<Phase>("setup");
   const [difficulty, setDifficulty] = useState<"basico" | "intermedio" | "avanzado">("intermedio");
   const [qIdx, setQIdx] = useState(0);
@@ -252,26 +250,7 @@ function Interviews() {
         IA con voz real, análisis vivo de tu respuesta y feedback estilo entrevistador profesional.
       </p>
 
-      <div className="mt-6 inline-flex rounded-full border border-border bg-surface p-1 text-sm">
-        <button onClick={() => setMode("vapi")}
-          className={`rounded-full px-4 py-1.5 transition ${mode === "vapi" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"}`}>
-          🎙 Voz IA real (VAPI)
-        </button>
-        <button onClick={() => setMode("local")}
-          className={`rounded-full px-4 py-1.5 transition ${mode === "local" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"}`}>
-          💬 Simulador local
-        </button>
-      </div>
-
-      {mode === "vapi" && (
-        <div className="mt-6">
-          <VapiInterview />
-        </div>
-      )}
-
-      {mode === "local" && (<></>)}
-
-      {mode === "local" && phase === "setup" && (
+      {phase === "setup" && (
         <div className="mt-8 grid gap-6">
           <div className="surface-card p-6">
             <div className="grid gap-4 sm:grid-cols-2">
@@ -325,7 +304,7 @@ function Interviews() {
         </div>
       )}
 
-      {mode === "local" && phase === "live" && (
+      {phase === "live" && (
         <div className="mt-8">
           <div className="flex items-center justify-between text-xs text-muted-foreground">
             <span>Pregunta {qIdx + 1} de {total} · <span className="text-primary">{MOCK_INTERVIEW_DETAILS[qIdx].intent}</span></span>
@@ -447,7 +426,7 @@ function Interviews() {
         </div>
       )}
 
-      {mode === "local" && phase === "review" && (() => {
+      {phase === "review" && (() => {
         const a = analyze(answers[qIdx] || "", durations[qIdx] || 1, qIdx);
         const detail = MOCK_INTERVIEW_DETAILS[qIdx];
         return (
@@ -560,7 +539,7 @@ function Interviews() {
         );
       })()}
 
-      {mode === "local" && phase === "done" && (() => {
+      {phase === "done" && (() => {
         const allAnalyses = answers.map((ans, i) => analyze(ans, durations[i] || 1, i));
         const avg = (k: keyof AnswerAnalysis["scores"]) =>
           Math.round(allAnalyses.reduce((s, x) => s + x.scores[k], 0) / Math.max(1, allAnalyses.length));
