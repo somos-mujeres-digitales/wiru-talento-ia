@@ -160,6 +160,58 @@ export const MOCK_INTERVIEW_QUESTIONS = [
   "¿Cómo trabajas en equipo? Dame un ejemplo concreto donde tuvieron una diferencia y cómo llegaron a un acuerdo.",
 ];
 
+// Detailed interview script — used to render rich, realistic mocks per question
+export const MOCK_INTERVIEW_DETAILS = [
+  {
+    intent: "Romper el hielo + motivación de marca",
+    expectedSeconds: [60, 90] as [number, number],
+    keywords: ["administración", "atención al cliente", "Caja Cusco", "Cusco", "finanzas", "ahorro"],
+    starExpected: false,
+    idealAnswer:
+      "Soy María Fernanda, egresada de Administración de la UNSAAC. En mis prácticas atendí a más de 200 clientes diarios en una cooperativa local manteniendo 95% de satisfacción. Quiero trabajar en Caja Cusco porque conecto con su misión regional: acercar productos financieros a las familias cusqueñas, especialmente en zonas donde la banca tradicional no llega.",
+    followUp: "¿Y por qué Caja Cusco y no un banco más grande como BCP o BBVA?",
+    tips: [
+      "Empieza con tu nombre y formación en una sola frase.",
+      "Conecta tu experiencia con un dato cuantificable (% o número).",
+      "Cierra con una razón específica de la empresa, no genérica.",
+    ],
+  },
+  {
+    intent: "Liderazgo + autoconciencia (rol dual)",
+    expectedSeconds: [90, 150] as [number, number],
+    keywords: ["lideré", "equipo", "objetivo", "resultado", "aprendí", "delegué", "coordiné"],
+    starExpected: true,
+    idealAnswer:
+      "(S) En la campaña de ahorro infantil de la cooperativa éramos 4 promotores. (T) La meta era abrir 80 cuentas en 2 semanas. (A) Como integrante propuse usar visitas a colegios; cuando me ascendieron a líder de campaña organicé turnos por zona, métricas diarias y un tablero compartido. (R) Cerramos con 112 cuentas, 40% sobre la meta, y aprendí que delegar con métricas claras motiva más que supervisar.",
+    followUp: "¿Qué harías distinto si volvieras a liderar esa campaña hoy?",
+    tips: [
+      "Usa la estructura STAR: Situación, Tarea, Acción, Resultado.",
+      "Menciona el cambio concreto entre tu rol de integrante y de líder.",
+      "Cierra siempre con un número o porcentaje.",
+    ],
+  },
+  {
+    intent: "Trabajo en equipo + resolución de conflictos",
+    expectedSeconds: [75, 120] as [number, number],
+    keywords: ["compañero", "diferencia", "escuchar", "acuerdo", "cliente", "propuse"],
+    starExpected: true,
+    idealAnswer:
+      "Con un compañero teníamos enfoques opuestos para atender a un cliente molesto: él quería escalar al supervisor, yo prefería resolver en ventanilla. En vez de imponer, le pedí que me explicara su lógica, expuse la mía y juntos combinamos: yo atendía al cliente mientras él preparaba el escalamiento por si fallaba. Resolvimos en ventanilla y desde entonces aplicamos ese protocolo para casos difíciles.",
+    followUp: "¿Cómo manejas a un compañero que no cumple su parte del trabajo?",
+    tips: [
+      "Describe la diferencia sin culpar al otro.",
+      "Muestra que escuchaste antes de proponer.",
+      "Termina con un acuerdo o protocolo que quedó instalado.",
+    ],
+  },
+];
+
+// Filler words ("muletillas") detector — used to score live answers
+export const SPANISH_FILLERS = [
+  "este", "eh", "ehm", "mmm", "o sea", "tipo", "como que", "pues", "bueno",
+  "digamos", "ya", "sabes", "no sé", "entonces",
+];
+
 export const SECTORS = [
   { id: "fin", icon: "🏦", title: "Sector financiero", subtitle: "Bancos, cajas, financieras" },
   { id: "tur", icon: "🏨", title: "Turismo y hotelería", subtitle: "Hoteles, restaurantes, agencias" },
