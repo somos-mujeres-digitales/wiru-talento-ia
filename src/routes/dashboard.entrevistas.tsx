@@ -1,7 +1,17 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
-import { Mic, MicOff, Clock, Sparkles, ArrowRight, RotateCcw, Volume2, AlertCircle } from "lucide-react";
+import {
+  Mic,
+  MicOff,
+  Clock,
+  Sparkles,
+  ArrowRight,
+  RotateCcw,
+  Volume2,
+  AlertCircle,
+} from "lucide-react";
+import VapiInterview from "@/components/VapiInterview";
 import { MOCK_INTERVIEW_QUESTIONS, MOCK_TARGET } from "@/lib/mockData";
 
 export const Route = createFileRoute("/dashboard/entrevistas")({
@@ -24,8 +34,7 @@ type SpeechRecognitionLike = {
 
 function getRecognition(): SpeechRecognitionLike | null {
   if (typeof window === "undefined") return null;
-  const Ctor =
-    (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+  const Ctor = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
   if (!Ctor) return null;
   return new Ctor() as SpeechRecognitionLike;
 }
@@ -102,7 +111,7 @@ function Interviews() {
   const stopListening = () => {
     try {
       recognitionRef.current?.stop();
-    } catch {}
+    } catch { }
     setIsListening(false);
   };
 
@@ -110,7 +119,9 @@ function Interviews() {
     setVoiceError(null);
     const rec = getRecognition();
     if (!rec) {
-      setVoiceError("Tu navegador no soporta reconocimiento de voz. Usa Chrome o Edge en escritorio.");
+      setVoiceError(
+        "Tu navegador no soporta reconocimiento de voz. Usa Chrome o Edge en escritorio.",
+      );
       return;
     }
     rec.lang = "es-PE";
@@ -177,7 +188,15 @@ function Interviews() {
         Practica con voz real: la IA te hace la pregunta en voz alta y tú respondes hablando.
       </p>
 
-      {phase === "setup" && (
+      <div className="mt-8 space-y-4">
+        <div>
+          <p className="label-tag text-primary">Entrevista por voz</p>
+        </div>
+        <VapiInterview />
+      </div>
+
+      {/* El simulador original se oculta temporalmente */}
+      {false && phase === "setup" && (
         <div className="mt-8 grid gap-6">
           <div className="surface-card p-6">
             <div className="grid gap-4 sm:grid-cols-2">
@@ -203,11 +222,10 @@ function Interviews() {
                   <button
                     key={d}
                     onClick={() => setDifficulty(d)}
-                    className={`flex-1 rounded-full px-4 py-2 text-sm capitalize transition ${
-                      difficulty === d
-                        ? "bg-primary text-primary-foreground"
-                        : "border border-border bg-surface text-muted-foreground hover:bg-surface-elevated"
-                    }`}
+                    className={`flex-1 rounded-full px-4 py-2 text-sm capitalize transition ${difficulty === d
+                      ? "bg-primary text-primary-foreground"
+                      : "border border-border bg-surface text-muted-foreground hover:bg-surface-elevated"
+                      }`}
                   >
                     {d}
                   </button>
@@ -219,7 +237,8 @@ function Interviews() {
               <div className="mt-4 flex items-start gap-2 rounded-lg border border-warning/40 bg-warning/10 p-3 text-xs text-warning">
                 <AlertCircle className="h-4 w-4 shrink-0 mt-0.5" />
                 <span>
-                  Tu navegador no soporta reconocimiento de voz. Aún podrás escuchar las preguntas y escribir tus respuestas. Para voz completa, usa Chrome o Edge.
+                  Tu navegador no soporta reconocimiento de voz. Aún podrás escuchar las preguntas y
+                  escribir tus respuestas. Para voz completa, usa Chrome o Edge.
                 </span>
               </div>
             )}
@@ -252,11 +271,15 @@ function Interviews() {
         </div>
       )}
 
-      {phase === "live" && (
+      {false && phase === "live" && (
         <div className="mt-8">
           <div className="flex items-center justify-between text-xs text-muted-foreground">
-            <span>Pregunta {qIdx + 1} de {total}</span>
-            <span className="inline-flex items-center gap-1"><Clock className="h-3.5 w-3.5" /> {fmt}</span>
+            <span>
+              Pregunta {qIdx + 1} de {total}
+            </span>
+            <span className="inline-flex items-center gap-1">
+              <Clock className="h-3.5 w-3.5" /> {fmt}
+            </span>
           </div>
           <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-border">
             <motion.div
@@ -307,7 +330,11 @@ function Interviews() {
               baseTextRef.current = e.target.value;
             }}
             rows={6}
-            placeholder={isListening ? "Escuchando... habla con naturalidad" : "Habla pulsando el botón, o escribe aquí tu respuesta..."}
+            placeholder={
+              isListening
+                ? "Escuchando... habla con naturalidad"
+                : "Habla pulsando el botón, o escribe aquí tu respuesta..."
+            }
             className="mt-4 w-full resize-none rounded-xl border border-border bg-surface p-4 text-sm outline-none focus:border-primary"
           />
 
@@ -322,11 +349,10 @@ function Interviews() {
             <button
               onClick={isListening ? stopListening : startListening}
               disabled={!voiceSupported || isAgentSpeaking}
-              className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm transition disabled:opacity-40 ${
-                isListening
-                  ? "bg-destructive text-destructive-foreground hover:opacity-90"
-                  : "border border-border bg-surface hover:bg-surface-elevated"
-              }`}
+              className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm transition disabled:opacity-40 ${isListening
+                ? "bg-destructive text-destructive-foreground hover:opacity-90"
+                : "border border-border bg-surface hover:bg-surface-elevated"
+                }`}
             >
               {isListening ? (
                 <>
@@ -350,13 +376,14 @@ function Interviews() {
               disabled={!current.trim()}
               className="inline-flex items-center gap-2 rounded-full bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground hover:opacity-90 transition disabled:opacity-40"
             >
-              {qIdx + 1 === total ? "Finalizar" : "Siguiente pregunta"} <ArrowRight className="h-4 w-4" />
+              {qIdx + 1 === total ? "Finalizar" : "Siguiente pregunta"}{" "}
+              <ArrowRight className="h-4 w-4" />
             </button>
           </div>
         </div>
       )}
 
-      {phase === "done" && (
+      {false && phase === "done" && (
         <div className="mt-8">
           <div className="surface-card flex flex-col items-center p-8 text-center">
             <div className="text-5xl font-semibold gradient-text">82</div>
@@ -398,7 +425,9 @@ function Interviews() {
                     <p className="text-xs text-muted-foreground">
                       {i + 1}. {MOCK_INTERVIEW_QUESTIONS[i]}
                     </p>
-                    <p className="mt-1 text-sm">{a || <span className="italic text-muted-foreground">(sin respuesta)</span>}</p>
+                    <p className="mt-1 text-sm">
+                      {a || <span className="italic text-muted-foreground">(sin respuesta)</span>}
+                    </p>
                   </div>
                 ))}
               </div>
