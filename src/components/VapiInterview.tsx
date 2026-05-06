@@ -118,11 +118,16 @@ export default function VapiInterview({ onConfigMissing }: { onConfigMissing?: (
     setStatus("connecting");
 
     try {
+      console.log("Starting VAPI with config:", { publicKey: config.publicKey, assistantId: config.assistantId });
       const vapi = new Vapi(config.publicKey);
       vapiRef.current = vapi;
 
-      vapi.on("call-start", () => setStatus("live"));
+      vapi.on("call-start", () => {
+        console.log("VAPI Call started");
+        setStatus("live");
+      });
       vapi.on("call-end", () => {
+        console.log("VAPI Call ended");
         setStatus("ended");
         setIsAssistantSpeaking(false);
       });
@@ -138,20 +143,22 @@ export default function VapiInterview({ onConfigMissing }: { onConfigMissing?: (
         }
       });
       vapi.on("error", (e: any) => {
-        console.error("VAPI error", e);
-        setError(e?.errorMsg || e?.message || "Error en la llamada con VAPI.");
+        console.error("VAPI full error object:", e);
+        setError(e?.errorMsg || e?.message || `Error de VAPI: ${JSON.stringify(e)}`);
         setStatus("error");
       });
 
       // Use assistantId if provided, otherwise inline overrides
       const overrides = buildAssistantOverrides(MOCK_TARGET.company, MOCK_TARGET.role);
       if (config.assistantId) {
+        console.log("Starting with assistantId:", config.assistantId);
         await vapi.start(config.assistantId, { variableValues: { company: MOCK_TARGET.company, role: MOCK_TARGET.role } });
       } else {
+        console.log("Starting with inline overrides");
         await vapi.start(overrides as any);
       }
     } catch (e: any) {
-      console.error(e);
+      console.error("Catch block error:", e);
       setError(e?.message || "No se pudo iniciar la llamada.");
       setStatus("error");
     }

@@ -7,8 +7,19 @@ import { createServerFn } from "@tanstack/react-start";
  * without redeploying.
  */
 export const getVapiConfig = createServerFn({ method: "GET" }).handler(async () => {
-  const publicKey = process.env.VAPI_PUBLIC_KEY || "";
-  const assistantId = process.env.VAPI_ASSISTANT_ID || "";
+  // Check process.env (Node/Bun) and VITE_ prefixed versions
+  const publicKey = 
+    process.env.VAPI_PUBLIC_KEY || 
+    process.env.VITE_VAPI_PUBLIC_KEY || 
+    (import.meta.env as any).VITE_VAPI_PUBLIC_KEY || 
+    "";
+    
+  const assistantId = 
+    process.env.VAPI_ASSISTANT_ID || 
+    process.env.VITE_VAPI_ASSISTANT_ID || 
+    (import.meta.env as any).VITE_VAPI_ASSISTANT_ID || 
+    "";
+
   return {
     publicKey,
     assistantId,
