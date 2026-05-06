@@ -11,6 +11,7 @@ import {
   MOCK_TARGET,
   SPANISH_FILLERS,
 } from "@/lib/mockData";
+import VapiInterview from "@/components/VapiInterview";
 
 export const Route = createFileRoute("/dashboard/entrevistas")({
   component: Interviews,
