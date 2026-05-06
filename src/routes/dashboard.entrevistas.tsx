@@ -271,7 +271,7 @@ function Interviews() {
 
       {mode === "local" && (<></>)}
 
-      {phase === "setup" && (
+      {mode === "local" && phase === "setup" && (
         <div className="mt-8 grid gap-6">
           <div className="surface-card p-6">
             <div className="grid gap-4 sm:grid-cols-2">
