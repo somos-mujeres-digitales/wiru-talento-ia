@@ -19,7 +19,19 @@ import {
 import { WiruLogo } from "@/components/WiruLogo";
 import { DemoUpgradeButton, ProBadge, ResetDemoButton } from "@/components/demo-mode";
 import { useDemoMode } from "@/lib/demo-mode";
-import { MOCK_COMPANIES } from "@/lib/mockData";
+
+const COMPANY_LOGOS = [
+  { src: new URL("../public/bcp.png", import.meta.url).href, alt: "BCP" },
+  { src: new URL("../public/bbva.png", import.meta.url).href, alt: "BBVA" },
+  { src: new URL("../public/caja cusco.png", import.meta.url).href, alt: "Caja Cusco" },
+  { src: new URL("../public/casa andina.png", import.meta.url).href, alt: "Casa Andina" },
+  { src: new URL("../public/latam.png", import.meta.url).href, alt: "LATAM" },
+  { src: new URL("../public/sodimac.png", import.meta.url).href, alt: "Sodimac" },
+  { src: new URL("../public/marriot.png", import.meta.url).href, alt: "Marriott" },
+  { src: new URL("../public/levely.png", import.meta.url).href, alt: "Levely" },
+];
+
+const MARQUEE_LOGOS = [...COMPANY_LOGOS, ...COMPANY_LOGOS];
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -147,15 +159,32 @@ function Landing() {
           <p className="text-center text-xs uppercase tracking-[0.16em] text-text-muted">
             Empresas en Cusco que buscan tu perfil
           </p>
-          <div className="mt-5 flex flex-wrap justify-center gap-2">
-            {MOCK_COMPANIES.map((c) => (
-              <span
-                key={c}
-                className="rounded-full border border-border bg-surface/60 px-3 py-1.5 text-xs text-muted-foreground"
-              >
-                {c}
-              </span>
-            ))}
+          <div
+            className="mt-8 overflow-hidden"
+            style={{
+              backgroundColor: "rgba(255, 255, 255, 0.96)",
+              borderRadius: "0.5rem",
+              paddingInline: "0.5rem",
+              maskImage: "linear-gradient(to right, transparent, black 8%, black 90%, transparent)",
+              WebkitMaskImage:
+                "linear-gradient(to right, transparent, black 8%, black 95%, transparent)",
+            }}
+          >
+            <div className="marquee-track flex w-max items-center gap-10 py-2">
+              {MARQUEE_LOGOS.map((company, index) => (
+                <div
+                  key={`${company.alt}-${index}`}
+                  className="flex h-28 w-52 flex-none items-center justify-center sm:h-32 sm:w-60 md:h-36 md:w-64"
+                >
+                  <img
+                    src={company.src}
+                    alt={company.alt}
+                    className="h-full w-full object-contain"
+                    loading="lazy"
+                  />
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </section>

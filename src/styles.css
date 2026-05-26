@@ -59,10 +59,10 @@
   --radius: 0.75rem;
 
   /* Backgrounds */
-  --background: oklch(0.205 0.018 264);            /* #111827 */
-  --surface: oklch(0.265 0.018 264);                /* #1F2937 */
+  --background: oklch(0.205 0.018 264); /* #111827 */
+  --surface: oklch(0.265 0.018 264); /* #1F2937 */
   --surface-elevated: oklch(0.305 0.018 264);
-  --foreground: oklch(0.985 0.005 264);             /* #F9FAFB */
+  --foreground: oklch(0.985 0.005 264); /* #F9FAFB */
 
   /* Cards & popovers */
   --card: oklch(0.265 0.018 264);
@@ -71,9 +71,9 @@
   --popover-foreground: oklch(0.985 0.005 264);
 
   /* Brand orange */
-  --primary: oklch(0.72 0.18 47);                   /* #F97316 */
+  --primary: oklch(0.72 0.18 47); /* #F97316 */
   --primary-foreground: oklch(0.205 0.018 264);
-  --primary-glow: oklch(0.78 0.16 50);              /* #FB923C */
+  --primary-glow: oklch(0.78 0.16 50); /* #FB923C */
 
   /* Secondary muted surfaces */
   --secondary: oklch(0.305 0.018 264);
@@ -81,8 +81,8 @@
 
   /* Muted text */
   --muted: oklch(0.305 0.018 264);
-  --muted-foreground: oklch(0.71 0.015 264);        /* #9CA3AF */
-  --text-muted: oklch(0.55 0.013 264);              /* #6B7280 */
+  --muted-foreground: oklch(0.71 0.015 264); /* #9CA3AF */
+  --text-muted: oklch(0.55 0.013 264); /* #6B7280 */
 
   /* Accent (subtle orange-tinted hover) */
   --accent: oklch(0.305 0.018 264);
@@ -91,13 +91,13 @@
   /* Status */
   --destructive: oklch(0.62 0.22 27);
   --destructive-foreground: oklch(0.985 0.005 264);
-  --success: oklch(0.7 0.17 145);                   /* #22C55E */
+  --success: oklch(0.7 0.17 145); /* #22C55E */
   --success-foreground: oklch(0.205 0.018 264);
   --warning: oklch(0.78 0.16 70);
   --warning-foreground: oklch(0.205 0.018 264);
 
   /* Borders & inputs */
-  --border: oklch(0.36 0.015 264);                  /* #374151 */
+  --border: oklch(0.36 0.015 264); /* #374151 */
   --input: oklch(0.36 0.015 264);
   --ring: oklch(0.72 0.18 47);
 
@@ -120,7 +120,11 @@
 
   /* Gradients & shadows */
   --gradient-primary: linear-gradient(135deg, var(--primary), var(--primary-glow));
-  --gradient-glow: radial-gradient(circle at 50% 0%, color-mix(in oklab, var(--primary) 35%, transparent), transparent 60%);
+  --gradient-glow: radial-gradient(
+    circle at 50% 0%,
+    color-mix(in oklab, var(--primary) 35%, transparent),
+    transparent 60%
+  );
   --shadow-glow: 0 10px 40px -10px color-mix(in oklab, var(--primary) 40%, transparent);
 }
 
@@ -162,7 +166,8 @@
     border-color: var(--color-border);
   }
 
-  html, body {
+  html,
+  body {
     background-color: var(--color-background);
     color: var(--color-foreground);
     font-family: var(--font-sans);
@@ -199,5 +204,19 @@
     background-color: var(--color-surface);
     border: 1px solid var(--color-border);
     border-radius: 12px;
+  }
+
+  .marquee-track {
+    animation: marquee-left 28s linear infinite;
+    will-change: transform;
+  }
+}
+
+@keyframes marquee-left {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
   }
 }
