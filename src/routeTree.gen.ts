@@ -18,6 +18,7 @@ import { Route as DashboardPostulacionesRouteImport } from './routes/dashboard.p
 import { Route as DashboardEntrevistasRouteImport } from './routes/dashboard.entrevistas'
 import { Route as DashboardCvRouteImport } from './routes/dashboard.cv'
 import { Route as DashboardAnalysisRouteImport } from './routes/dashboard.analysis'
+import { Route as ApiVapiWebhookRouteImport } from './routes/api.vapi.webhook'
 
 const OnboardingRoute = OnboardingRouteImport.update({
   id: '/onboarding',
@@ -64,6 +65,11 @@ const DashboardAnalysisRoute = DashboardAnalysisRouteImport.update({
   path: '/analysis',
   getParentRoute: () => DashboardRoute,
 } as any)
+const ApiVapiWebhookRoute = ApiVapiWebhookRouteImport.update({
+  id: '/api/vapi/webhook',
+  path: '/api/vapi/webhook',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -75,6 +81,7 @@ export interface FileRoutesByFullPath {
   '/dashboard/postulaciones': typeof DashboardPostulacionesRoute
   '/dashboard/vacantes': typeof DashboardVacantesRoute
   '/dashboard/': typeof DashboardIndexRoute
+  '/api/vapi/webhook': typeof ApiVapiWebhookRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -85,6 +92,7 @@ export interface FileRoutesByTo {
   '/dashboard/postulaciones': typeof DashboardPostulacionesRoute
   '/dashboard/vacantes': typeof DashboardVacantesRoute
   '/dashboard': typeof DashboardIndexRoute
+  '/api/vapi/webhook': typeof ApiVapiWebhookRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -97,6 +105,7 @@ export interface FileRoutesById {
   '/dashboard/postulaciones': typeof DashboardPostulacionesRoute
   '/dashboard/vacantes': typeof DashboardVacantesRoute
   '/dashboard/': typeof DashboardIndexRoute
+  '/api/vapi/webhook': typeof ApiVapiWebhookRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -110,6 +119,7 @@ export interface FileRouteTypes {
     | '/dashboard/postulaciones'
     | '/dashboard/vacantes'
     | '/dashboard/'
+    | '/api/vapi/webhook'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -120,6 +130,7 @@ export interface FileRouteTypes {
     | '/dashboard/postulaciones'
     | '/dashboard/vacantes'
     | '/dashboard'
+    | '/api/vapi/webhook'
   id:
     | '__root__'
     | '/'
@@ -131,12 +142,14 @@ export interface FileRouteTypes {
     | '/dashboard/postulaciones'
     | '/dashboard/vacantes'
     | '/dashboard/'
+    | '/api/vapi/webhook'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   DashboardRoute: typeof DashboardRouteWithChildren
   OnboardingRoute: typeof OnboardingRoute
+  ApiVapiWebhookRoute: typeof ApiVapiWebhookRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -204,6 +217,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardAnalysisRouteImport
       parentRoute: typeof DashboardRoute
     }
+    '/api/vapi/webhook': {
+      id: '/api/vapi/webhook'
+      path: '/api/vapi/webhook'
+      fullPath: '/api/vapi/webhook'
+      preLoaderRoute: typeof ApiVapiWebhookRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -233,6 +253,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   DashboardRoute: DashboardRouteWithChildren,
   OnboardingRoute: OnboardingRoute,
+  ApiVapiWebhookRoute: ApiVapiWebhookRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

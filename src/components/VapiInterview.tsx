@@ -1,5 +1,5 @@
+import type Vapi from "@vapi-ai/web";
 import { useEffect, useRef, useState } from "react";
-import Vapi from "@vapi-ai/web";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Mic,
@@ -15,13 +15,21 @@ import {
   Activity,
   Settings2,
 } from "lucide-react";
-import { getVapiConfig } from "@/lib/vapi.functions";
+import { getVapiConfig, readVapiConfig } from "@/lib/vapi.functions";
 import { MOCK_TARGET } from "@/lib/mockData";
 
 const SPANISH_FILLERS = ["este", "o sea", "eh", "mmm", "tipo", "pues", "como que"];
 
 type Status = "idle" | "loading" | "connecting" | "live" | "ended" | "error";
 type Msg = { role: "assistant" | "user"; text: string; ts: number };
+type VapiInstance = InstanceType<typeof Vapi>;
+type VapiAssistantOverrides = Parameters<VapiInstance["start"]>[1];
+type VapiTranscriptMessage = {
+  type?: string;
+  transcriptType?: string;
+  transcript?: string;
+  role?: string;
+};
 
 function buildSystemPrompt(company: string, role: string) {
   return `Eres Sofía, entrevistadora senior de RR.HH. de ${company} en Cusco, Perú. Estás entrevistando a una candidata joven (18–28 años) para el puesto de "${role}".
@@ -40,7 +48,10 @@ Reglas:
 - NO menciones que eres IA. Actúa como humana.`;
 }
 
-function buildAssistantOverrides(company: string, role: string) {
+function buildAssistantOverrides(
+  company: string,
+  role: string,
+): NonNullable<VapiAssistantOverrides> {
   return {
     name: "Sofía — Entrevistadora",
     firstMessage: `Hola, soy Sofía de ${company}. Gracias por tu tiempo. Vamos a empezar: cuéntame sobre ti, ¿quién eres, qué estudiaste y por qué quieres trabajar con nosotros?`,
@@ -62,8 +73,6 @@ function buildAssistantOverrides(company: string, role: string) {
       model: "nova-2",
       language: "es",
     },
-    silenceTimeoutSeconds: 30,
-    maxDurationSeconds: 600,
   };
 }
 
@@ -117,27 +126,65 @@ export default function VapiInterview({ onConfigMissing }: { onConfigMissing?: (
   const [isAssistantSpeaking, setIsAssistantSpeaking] = useState(false);
   const [muted, setMuted] = useState(false);
   const [volume, setVolume] = useState(0);
-  const vapiRef = useRef<Vapi | null>(null);
+  const [vapiReady, setVapiReady] = useState(false);
+  const vapiRef = useRef<VapiInstance | null>(null);
 
   useEffect(() => {
-    getVapiConfig()
-      .then((c) => {
-        setConfig(c);
-        if (c.configured && !vapiRef.current) {
-          vapiRef.current = new Vapi(c.publicKey);
-        }
+    let cancelled = false;
+
+    const bootstrap = async () => {
+      const localConfig = readVapiConfig();
+
+      if (localConfig.configured) {
+        if (cancelled) return;
+        setConfig(localConfig);
         setStatus("idle");
-        if (!c.configured) onConfigMissing?.();
-      })
-      .catch(() => setStatus("error"));
+        return;
+      }
+
+      try {
+        const serverConfig = await getVapiConfig();
+        if (cancelled) return;
+
+        setConfig(serverConfig);
+        setStatus("idle");
+        if (!serverConfig.configured) onConfigMissing?.();
+      } catch {
+        if (!cancelled) setStatus("error");
+      }
+    };
+
+    void bootstrap();
 
     return () => {
+      cancelled = true;
+
       if (vapiRef.current) {
         vapiRef.current.stop();
         vapiRef.current = null;
       }
     };
   }, [onConfigMissing]);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    if (!config?.configured || vapiRef.current) return;
+
+    const loadSdk = async () => {
+      const { default: Vapi } = await import("@vapi-ai/web");
+      if (cancelled) return;
+
+      vapiRef.current = new Vapi(config.publicKey);
+      setVapiReady(true);
+    };
+
+    void loadSdk();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [config?.configured, config?.publicKey]);
 
   // Event listeners for the Vapi instance
   useEffect(() => {
@@ -163,23 +210,31 @@ export default function VapiInterview({ onConfigMissing }: { onConfigMissing?: (
       setIsAssistantSpeaking(false);
     };
     const onVolumeLevel = (v: number) => setVolume(v);
-    const onMessage = (m: any) => {
-      console.debug("VAPI message:", m);
-      if (m.type === "transcript" && m.transcriptType === "final" && m.transcript) {
-        const text = m.transcript;
-        const role = m.role === "assistant" ? "assistant" : "user";
+    const onMessage = (message: VapiTranscriptMessage) => {
+      console.debug("VAPI message:", message);
+      if (
+        message.type === "transcript" &&
+        message.transcriptType === "final" &&
+        message.transcript
+      ) {
+        const text = message.transcript;
+        const role = message.role === "assistant" ? "assistant" : "user";
         setMessages((prev) => [...prev, { role, text, ts: Date.now() }]);
       }
     };
-    const onError = (e: any) => {
-      const errorObject = e as any;
+    const onError = (error: unknown) => {
+      const errorObject = error as {
+        errorMsg?: string;
+        message?: string;
+        error?: { message?: string; type?: string };
+      };
       const errorMessage =
         errorObject?.errorMsg || errorObject?.message || errorObject?.error?.message || "";
 
       if (/meeting has ended/i.test(errorMessage) || errorObject?.error?.type === "ejected") {
         return;
       }
-      console.error("[VAPI Error]:", e);
+      console.error("[VAPI Error]:", error);
       setError(errorMessage || "Error en la conexión de voz.");
       setStatus("error");
       setIsAssistantSpeaking(false);
@@ -202,7 +257,7 @@ export default function VapiInterview({ onConfigMissing }: { onConfigMissing?: (
       vapi.off("message", onMessage);
       vapi.off("error", onError);
     };
-  }, [config?.publicKey]);
+  }, [vapiReady]);
 
   useEffect(() => {
     if (status !== "live") return;
@@ -227,14 +282,14 @@ export default function VapiInterview({ onConfigMissing }: { onConfigMissing?: (
         await vapi.start(config.assistantId, {
           ...assistantOverrides,
           variableValues: { company: MOCK_TARGET.company, role: MOCK_TARGET.role },
-        } as any);
+        });
       } else {
         console.log("Starting with inline assistant");
-        await vapi.start(assistantOverrides as any);
+        await vapi.start(assistantOverrides);
       }
     } catch (e: unknown) {
       console.error("Vapi start error:", e);
-      setError((e as any)?.message || "No se pudo iniciar la llamada.");
+      setError(e instanceof Error ? e.message : "No se pudo iniciar la llamada.");
       setStatus("error");
       setIsAssistantSpeaking(false);
     }
