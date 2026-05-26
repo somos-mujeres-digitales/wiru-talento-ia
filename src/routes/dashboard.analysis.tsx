@@ -1,8 +1,20 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { motion, useMotionValue, useTransform, animate, AnimatePresence } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
-import { AlertTriangle, CheckCircle2, Copy, Lock, Download, Sparkles, UploadCloud, FileText, Loader2 } from "lucide-react";
+import {
+  AlertTriangle,
+  CheckCircle2,
+  Copy,
+  Lock,
+  Download,
+  Sparkles,
+  UploadCloud,
+  FileText,
+  Loader2,
+} from "lucide-react";
 import { MOCK_CV_SCORE, MOCK_TARGET, MOCK_USER } from "@/lib/mockData";
+import { DemoUpgradeButton, ProBadge } from "@/components/demo-mode";
+import { useDemoMode } from "@/lib/demo-mode";
 
 export const Route = createFileRoute("/dashboard/analysis")({
   component: Analysis,
@@ -54,9 +66,21 @@ function ScoreRing({ value }: { value: number }) {
   );
 }
 
-function Bar({ name, score, status }: { name: string; score: number; status: "good" | "warn" | "bad" }) {
+function Bar({
+  name,
+  score,
+  status,
+}: {
+  name: string;
+  score: number;
+  status: "good" | "warn" | "bad";
+}) {
   const color =
-    status === "good" ? "var(--color-success)" : status === "warn" ? "var(--color-warning)" : "var(--color-destructive)";
+    status === "good"
+      ? "var(--color-success)"
+      : status === "warn"
+        ? "var(--color-warning)"
+        : "var(--color-destructive)";
   return (
     <div>
       <div className="mb-1.5 flex items-center justify-between text-sm">
@@ -79,6 +103,7 @@ function Bar({ name, score, status }: { name: string; score: number; status: "go
 type Stage = "idle" | "uploading" | "parsing" | "analyzing" | "done";
 
 function Analysis() {
+  const { isPro } = useDemoMode();
   const [improved, setImproved] = useState(MOCK_CV_SCORE.improvedSummary);
   const [copied, setCopied] = useState(false);
   const [stage, setStage] = useState<Stage>("idle");
@@ -190,7 +215,8 @@ function Analysis() {
                   <p className="text-xs text-muted-foreground">
                     {stage === "uploading" && `Subiendo... ${progress}%`}
                     {stage === "parsing" && "Leyendo contenido del CV..."}
-                    {stage === "analyzing" && `Analizando con IA frente a ${MOCK_TARGET.company}...`}
+                    {stage === "analyzing" &&
+                      `Analizando con IA frente a ${MOCK_TARGET.company}...`}
                   </p>
                 </div>
                 {stage !== "uploading" && <Loader2 className="h-4 w-4 animate-spin text-primary" />}
@@ -227,7 +253,9 @@ function Analysis() {
                       ) : (
                         <div className="h-4 w-4 rounded-full border border-border" />
                       )}
-                      <span className={done || active ? "" : "text-muted-foreground"}>{s.label}</span>
+                      <span className={done || active ? "" : "text-muted-foreground"}>
+                        {s.label}
+                      </span>
                     </li>
                   );
                 })}
@@ -301,7 +329,11 @@ function Analysis() {
                   isWarn ? "bg-warning/15 text-warning" : "bg-success/15 text-success"
                 }`}
               >
-                {isWarn ? <AlertTriangle className="h-4 w-4" /> : <CheckCircle2 className="h-4 w-4" />}
+                {isWarn ? (
+                  <AlertTriangle className="h-4 w-4" />
+                ) : (
+                  <CheckCircle2 className="h-4 w-4" />
+                )}
               </div>
               <p className="font-medium">{r.title}</p>
               <p className="mt-1 text-sm text-muted-foreground">{r.detail}</p>
@@ -337,10 +369,17 @@ function Analysis() {
       {/* Download formats */}
       <div className="mt-10">
         <h2 className="text-lg font-medium">Descarga tu CV listo para enviar</h2>
-        <p className="text-sm text-muted-foreground">Disponible en distintos formatos según el destino.</p>
+        <p className="text-sm text-muted-foreground">
+          Disponible en distintos formatos según el destino.
+        </p>
         <div className="mt-4 grid gap-3 md:grid-cols-3">
           {[
-            { name: "Cronológico", desc: "Para empleos en Cusco", free: true, badge: "Recomendado" },
+            {
+              name: "Cronológico",
+              desc: "Para empleos en Cusco",
+              free: true,
+              badge: "Recomendado",
+            },
             { name: "Harvard", desc: "En inglés para empresas internacionales", free: false },
             { name: "Europass", desc: "Para empresas europeas", free: false },
           ].map((f) => (
@@ -352,27 +391,91 @@ function Analysis() {
                     {f.badge}
                   </span>
                 )}
-                {!f.free && <Lock className="h-4 w-4 text-muted-foreground" />}
+                {!f.free && !isPro && <Lock className="h-4 w-4 text-muted-foreground" />}
+                {!f.free && isPro && (
+                  <span className="rounded-full bg-primary/15 px-2 py-0.5 text-[10px] font-semibold text-primary">
+                    PRO
+                  </span>
+                )}
               </div>
               <p className="mt-1 text-sm text-muted-foreground">{f.desc}</p>
               <button
-                disabled={!f.free}
+                disabled={!f.free && !isPro}
                 className={`mt-4 inline-flex items-center justify-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition ${
-                  f.free
+                  f.free || isPro
                     ? "bg-primary text-primary-foreground hover:opacity-90"
                     : "border border-border bg-background text-muted-foreground"
                 }`}
               >
                 <Download className="h-4 w-4" />
-                {f.free ? "Descargar" : "Pro"}
+                {f.free || isPro ? "Descargar" : "Pro"}
               </button>
             </div>
           ))}
         </div>
-        <button className="mt-4 w-full rounded-full bg-primary px-5 py-3 text-sm font-medium text-primary-foreground hover:opacity-90 transition">
-          Activar Pro — todos los formatos · S/ 14.90 →
-        </button>
+        <div className="mt-4">
+          {isPro ? (
+            <ProBadge className="w-full justify-center" />
+          ) : (
+            <DemoUpgradeButton
+              className="w-full justify-center"
+              label="Activar Pro — todos los formatos · S/ 14.90"
+            />
+          )}
+        </div>
       </div>
+
+      {isPro && (
+        <div className="mt-10 grid gap-4 md:grid-cols-3">
+          <div className="surface-card p-5 md:col-span-2">
+            <p className="label-tag text-primary">Exportación premium</p>
+            <div className="mt-4 overflow-hidden rounded-xl border border-border">
+              <table className="w-full text-left text-sm">
+                <thead className="bg-surface-elevated text-xs uppercase tracking-wide text-muted-foreground">
+                  <tr>
+                    <th className="px-4 py-3">Formato</th>
+                    <th className="px-4 py-3">Estado</th>
+                    <th className="px-4 py-3">Destino</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {[
+                    ["Cronológico", "Listo", "Cusco / Perú"],
+                    ["Harvard", "Listo", "Internacional"],
+                    ["Europass", "Listo", "Europa"],
+                  ].map(([format, status, target]) => (
+                    <tr key={format} className="border-t border-border bg-background">
+                      <td className="px-4 py-3 font-medium">{format}</td>
+                      <td className="px-4 py-3 text-success">{status}</td>
+                      <td className="px-4 py-3 text-muted-foreground">{target}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <div className="surface-card p-5">
+            <p className="label-tag text-primary">Métricas PRO</p>
+            <div className="mt-4 space-y-3">
+              {[
+                { label: "Aperturas", value: "87%", width: "87%", tone: "bg-primary" },
+                { label: "Respuestas", value: "62%", width: "62%", tone: "bg-success" },
+                { label: "Entrevistas", value: "11", width: "74%", tone: "bg-warning" },
+              ].map((metric) => (
+                <div key={metric.label}>
+                  <div className="mb-1 flex items-center justify-between text-sm">
+                    <span>{metric.label}</span>
+                    <span className="font-medium">{metric.value}</span>
+                  </div>
+                  <div className="h-2 overflow-hidden rounded-full bg-border">
+                    <div className={`h-full ${metric.tone}`} style={{ width: metric.width }} />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

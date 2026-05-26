@@ -1,8 +1,24 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { motion, AnimatePresence } from "framer-motion";
 import { useEffect, useState } from "react";
-import { ArrowRight, FileText, BarChart3, Mic, ListChecks, Check, Sparkles, Volume2, Brain, Building2, MessageSquare, Gauge, Radio } from "lucide-react";
+import {
+  ArrowRight,
+  FileText,
+  BarChart3,
+  Mic,
+  ListChecks,
+  Check,
+  Sparkles,
+  Volume2,
+  Brain,
+  Building2,
+  MessageSquare,
+  Gauge,
+  Radio,
+} from "lucide-react";
 import { WiruLogo } from "@/components/WiruLogo";
+import { DemoUpgradeButton, ProBadge, ResetDemoButton } from "@/components/demo-mode";
+import { useDemoMode } from "@/lib/demo-mode";
 import { MOCK_COMPANIES } from "@/lib/mockData";
 
 export const Route = createFileRoute("/")({
@@ -28,6 +44,7 @@ const ROTATING_WORDS = ["empleo", "oportunidad", "carrera", "futuro"];
 
 function Landing() {
   const [wordIdx, setWordIdx] = useState(0);
+  const { isPro } = useDemoMode();
 
   useEffect(() => {
     const t = setInterval(() => setWordIdx((i) => (i + 1) % ROTATING_WORDS.length), 2000);
@@ -41,16 +58,29 @@ function Landing() {
         <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
           <WiruLogo />
           <nav className="hidden items-center gap-8 text-sm text-muted-foreground md:flex">
-            <a href="#how" className="hover:text-foreground transition">Cómo funciona</a>
-            <a href="#entrevistas-ia" className="hover:text-foreground transition">Entrevistas IA</a>
-            <a href="#planes" className="hover:text-foreground transition">Planes</a>
+            <a href="#how" className="hover:text-foreground transition">
+              Cómo funciona
+            </a>
+            <a href="#entrevistas-ia" className="hover:text-foreground transition">
+              Entrevistas IA
+            </a>
+            <a href="#planes" className="hover:text-foreground transition">
+              Planes
+            </a>
           </nav>
-          <Link
-            to="/onboarding"
-            className="rounded-full bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition hover:opacity-90"
-          >
-            Empezar gratis
-          </Link>
+          <div className="flex items-center gap-3">
+            {isPro ? (
+              <ProBadge className="hidden sm:inline-flex" />
+            ) : (
+              <DemoUpgradeButton className="hidden sm:inline-flex" label="Pasar a Pro" />
+            )}
+            <Link
+              to="/onboarding"
+              className="rounded-full bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition hover:opacity-90"
+            >
+              Empezar gratis
+            </Link>
+          </div>
         </div>
       </header>
 
@@ -141,9 +171,21 @@ function Landing() {
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
           {[
             { icon: FileText, title: "Sube tu CV", desc: "Lo analizamos en segundos" },
-            { icon: BarChart3, title: "Tu score de empleo", desc: "Sabés qué mejorar antes de postular" },
-            { icon: Mic, title: "Simula tu entrevista", desc: "Practica con IA antes del día real" },
-            { icon: ListChecks, title: "Haz seguimiento", desc: "Nunca pierdas el hilo de tus postulaciones" },
+            {
+              icon: BarChart3,
+              title: "Tu score de empleo",
+              desc: "Sabés qué mejorar antes de postular",
+            },
+            {
+              icon: Mic,
+              title: "Simula tu entrevista",
+              desc: "Practica con IA antes del día real",
+            },
+            {
+              icon: ListChecks,
+              title: "Haz seguimiento",
+              desc: "Nunca pierdas el hilo de tus postulaciones",
+            },
           ].map((s, i) => (
             <motion.div
               key={s.title}
@@ -303,8 +345,8 @@ function Landing() {
                     <p className="text-xs font-medium text-success">Tú · transcribiendo</p>
                   </div>
                   <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
-                    "En mi último proyecto de la universidad organicé al equipo para entregar
-                    a tiempo
+                    "En mi último proyecto de la universidad organicé al equipo para entregar a
+                    tiempo
                     <motion.span
                       className="ml-0.5 inline-block w-1.5 h-3.5 align-middle bg-primary"
                       animate={{ opacity: [1, 0, 1] }}
@@ -320,8 +362,13 @@ function Landing() {
                     { label: "Confianza", v: 76 },
                     { label: "Estructura", v: 82 },
                   ].map((m, i) => (
-                    <div key={m.label} className="rounded-lg border border-border bg-surface/60 p-2.5">
-                      <p className="text-[10px] uppercase tracking-wider text-text-muted">{m.label}</p>
+                    <div
+                      key={m.label}
+                      className="rounded-lg border border-border bg-surface/60 p-2.5"
+                    >
+                      <p className="text-[10px] uppercase tracking-wider text-text-muted">
+                        {m.label}
+                      </p>
                       <p className="mt-0.5 text-lg font-semibold">{m.v}%</p>
                       <div className="mt-1 h-1 overflow-hidden rounded-full bg-border">
                         <motion.div
@@ -362,10 +409,19 @@ function Landing() {
           {/* Diferencial bar */}
           <div id="diferencial" className="mt-20 grid gap-4 md:grid-cols-4">
             {[
-              { t: "Entrenamiento + evaluación + empleo", d: "Una sola plataforma, sin saltar entre apps." },
-              { t: "Entrevistas con IA en tiempo real", d: "Voz natural, preguntas que reaccionan." },
+              {
+                t: "Entrenamiento + evaluación + empleo",
+                d: "Una sola plataforma, sin saltar entre apps.",
+              },
+              {
+                t: "Entrevistas con IA en tiempo real",
+                d: "Voz natural, preguntas que reaccionan.",
+              },
               { t: "Adaptado a tu sector", d: "Finanzas, público, comercio y más." },
-              { t: "No solo el CV — tu desempeño", d: "Demuestras lo que sabes, no solo lo que dice tu papel." },
+              {
+                t: "No solo el CV — tu desempeño",
+                d: "Demuestras lo que sabes, no solo lo que dice tu papel.",
+              },
             ].map((d) => (
               <div key={d.t} className="surface-card p-5">
                 <Check className="h-4 w-4 text-primary" />
@@ -376,7 +432,6 @@ function Landing() {
           </div>
         </div>
       </section>
-
 
       <section id="planes" className="mx-auto max-w-5xl px-6 py-20">
         <div className="mb-12 text-center">
@@ -421,7 +476,9 @@ function Landing() {
             <p className="mt-2 text-3xl font-semibold">
               S/ 14.90 <span className="text-base font-normal text-muted-foreground">/mes</span>
             </p>
-            <p className="mt-1 text-sm text-muted-foreground">Todo lo que necesitas para destacar</p>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Todo lo que necesitas para destacar
+            </p>
             <ul className="mt-6 space-y-3 text-sm">
               {[
                 "Score completo + recomendaciones",
@@ -435,12 +492,13 @@ function Landing() {
                 </li>
               ))}
             </ul>
-            <Link
-              to="/onboarding"
-              className="mt-8 block w-full rounded-full bg-primary py-2.5 text-center text-sm font-medium text-primary-foreground hover:opacity-90 transition"
-            >
-              Activar Pro
-            </Link>
+            <div className="mt-8">
+              {isPro ? (
+                <ProBadge className="w-full justify-center" />
+              ) : (
+                <DemoUpgradeButton className="w-full justify-center" label="Activar Pro" />
+              )}
+            </div>
           </div>
         </div>
       </section>
@@ -452,6 +510,7 @@ function Landing() {
           <p className="text-xs text-text-muted">
             © {new Date().getFullYear()} Wiru IA · Hecho en Cusco para Cusco.
           </p>
+          <ResetDemoButton />
         </div>
       </footer>
     </div>

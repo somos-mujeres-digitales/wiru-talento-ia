@@ -4,6 +4,7 @@ import { useState } from "react";
 import { ArrowRight, ArrowLeft, Check, Mail } from "lucide-react";
 import { WiruLogo } from "@/components/WiruLogo";
 import { SECTORS, STAGES } from "@/lib/mockData";
+import { useDemoMode } from "@/lib/demo-mode";
 
 export const Route = createFileRoute("/onboarding")({
   component: Onboarding,
@@ -11,6 +12,7 @@ export const Route = createFileRoute("/onboarding")({
 
 function Onboarding() {
   const navigate = useNavigate();
+  const { runAutomationSequence } = useDemoMode();
   const [step, setStep] = useState(1);
   const [name, setName] = useState("");
   const [sectors, setSectors] = useState<string[]>([]);
@@ -36,19 +38,24 @@ function Onboarding() {
 
   const finish = (provider: "google" | "email") => {
     if (provider === "email" && !validate()) return;
-    if (typeof window !== "undefined") {
-      localStorage.setItem(
-        "wiru_user",
-        JSON.stringify({
-          name: name || "María Fernanda",
-          sectors,
-          stage,
-          email: provider === "google" ? `${(name || "usuario").toLowerCase().replace(/\s+/g, ".")}@gmail.com` : email.trim(),
-          provider,
-        }),
-      );
-    }
-    navigate({ to: "/dashboard" });
+    runAutomationSequence(() => {
+      if (typeof window !== "undefined") {
+        localStorage.setItem(
+          "wiru_user",
+          JSON.stringify({
+            name: name || "María Fernanda",
+            sectors,
+            stage,
+            email:
+              provider === "google"
+                ? `${(name || "usuario").toLowerCase().replace(/\s+/g, ".")}@gmail.com`
+                : email.trim(),
+            provider,
+          }),
+        );
+      }
+      navigate({ to: "/dashboard" });
+    });
   };
 
   const canContinue =
@@ -143,9 +150,7 @@ function Onboarding() {
                           <p className="font-medium">{s.title}</p>
                           <p className="text-xs text-muted-foreground">{s.subtitle}</p>
                         </div>
-                        {active && (
-                          <Check className="ml-auto h-4 w-4 shrink-0 text-primary" />
-                        )}
+                        {active && <Check className="ml-auto h-4 w-4 shrink-0 text-primary" />}
                       </button>
                     );
                   })}
@@ -211,7 +216,13 @@ function Onboarding() {
                 <p className="mt-6 text-sm text-muted-foreground">
                   Crea tu cuenta para guardar tu progreso.
                 </p>
-                <div className="mt-6 space-y-3 text-left">
+                <form
+                  className="mt-6 space-y-3 text-left"
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    finish("email");
+                  }}
+                >
                   <div>
                     <label className="label-tag text-text-muted">Correo</label>
                     <input
@@ -252,7 +263,7 @@ function Onboarding() {
                   </div>
 
                   <button
-                    onClick={() => finish("email")}
+                    type="submit"
                     className="mt-2 flex w-full items-center justify-center gap-2 rounded-full bg-primary px-5 py-3 text-sm font-medium text-primary-foreground hover:opacity-90 transition"
                   >
                     <Mail className="h-4 w-4" />
@@ -269,16 +280,23 @@ function Onboarding() {
                   </div>
 
                   <button
+                    type="button"
                     onClick={() => finish("google")}
                     className="flex w-full items-center justify-center gap-2 rounded-full border border-border bg-surface px-5 py-3 text-sm hover:bg-surface-elevated transition"
                   >
                     <svg className="h-4 w-4" viewBox="0 0 24 24">
-                      <path fill="currentColor" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09Z" />
-                      <path fill="currentColor" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.99.66-2.25 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84A11 11 0 0 0 12 23Z" />
+                      <path
+                        fill="currentColor"
+                        d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09Z"
+                      />
+                      <path
+                        fill="currentColor"
+                        d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.99.66-2.25 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84A11 11 0 0 0 12 23Z"
+                      />
                     </svg>
                     Continuar con Google
                   </button>
-                </div>
+                </form>
                 <p className="mt-4 text-xs text-text-muted">
                   Al crear tu cuenta aceptas los términos de uso.
                 </p>

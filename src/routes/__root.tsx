@@ -1,5 +1,7 @@
 import { Outlet, Link, createRootRoute, HeadContent, Scripts } from "@tanstack/react-router";
 import appCss from "../styles.css?url";
+import { DemoModeProvider } from "@/components/demo-mode";
+import { Toaster } from "@/components/ui/sonner";
 
 function NotFoundComponent() {
   return (
@@ -43,11 +45,28 @@ export const Route = createRootRoute({
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
       { name: "twitter:title", content: "Wiru IA — Consigue tu primer empleo en Cusco" },
-      { name: "description", content: "AI-powered job search platform for young talent in Cusco, Peru." },
-      { property: "og:description", content: "AI-powered job search platform for young talent in Cusco, Peru." },
-      { name: "twitter:description", content: "AI-powered job search platform for young talent in Cusco, Peru." },
-      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/dbd6a1ca-5cf2-4c32-a372-8ae54e79d4d0/id-preview-09e20bfe--5d5b62a0-dca3-47ef-84c7-4e2b4258fd66.lovable.app-1777909968038.png" },
-      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/dbd6a1ca-5cf2-4c32-a372-8ae54e79d4d0/id-preview-09e20bfe--5d5b62a0-dca3-47ef-84c7-4e2b4258fd66.lovable.app-1777909968038.png" },
+      {
+        name: "description",
+        content: "AI-powered job search platform for young talent in Cusco, Peru.",
+      },
+      {
+        property: "og:description",
+        content: "AI-powered job search platform for young talent in Cusco, Peru.",
+      },
+      {
+        name: "twitter:description",
+        content: "AI-powered job search platform for young talent in Cusco, Peru.",
+      },
+      {
+        property: "og:image",
+        content:
+          "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/dbd6a1ca-5cf2-4c32-a372-8ae54e79d4d0/id-preview-09e20bfe--5d5b62a0-dca3-47ef-84c7-4e2b4258fd66.lovable.app-1777909968038.png",
+      },
+      {
+        name: "twitter:image",
+        content:
+          "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/dbd6a1ca-5cf2-4c32-a372-8ae54e79d4d0/id-preview-09e20bfe--5d5b62a0-dca3-47ef-84c7-4e2b4258fd66.lovable.app-1777909968038.png",
+      },
     ],
     links: [{ rel: "stylesheet", href: appCss }],
   }),
@@ -63,7 +82,10 @@ function RootShell({ children }: { children: React.ReactNode }) {
         <HeadContent />
       </head>
       <body>
-        {children}
+        <DemoModeProvider>
+          {children}
+          <Toaster richColors closeButton position="top-right" />
+        </DemoModeProvider>
         <Scripts />
       </body>
     </html>

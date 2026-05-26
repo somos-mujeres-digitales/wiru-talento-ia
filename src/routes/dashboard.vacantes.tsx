@@ -1,15 +1,23 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { motion } from "framer-motion";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { MapPin, Calendar, ExternalLink, Lock, Sparkles, ArrowRight } from "lucide-react";
 import { MOCK_VACANCIES, MOCK_TARGET } from "@/lib/mockData";
+import { DemoUpgradeButton, ProBadge } from "@/components/demo-mode";
+import { useDemoMode } from "@/lib/demo-mode";
 
 export const Route = createFileRoute("/dashboard/vacantes")({
   component: Vacantes,
 });
 
 function Vacantes() {
-  const [view, setView] = useState<"free" | "pro">("free");
+  const { isPro } = useDemoMode();
+  const [view, setView] = useState<"free" | "pro">(isPro ? "pro" : "free");
+
+  useEffect(() => {
+    if (isPro) setView("pro");
+  }, [isPro]);
+
   return (
     <div className="mx-auto max-w-5xl px-6 py-10">
       <div className="flex flex-wrap items-center justify-between gap-3">
@@ -29,19 +37,23 @@ function Vacantes() {
             Empleos recomendados por IA para tu perfil activo.
           </p>
         </div>
-        <div className="inline-flex rounded-full border border-border bg-surface p-1 text-sm">
-          {(["free", "pro"] as const).map((v) => (
-            <button
-              key={v}
-              onClick={() => setView(v)}
-              className={`rounded-full px-4 py-1.5 transition ${
-                view === v ? "bg-primary text-primary-foreground" : "text-muted-foreground"
-              }`}
-            >
-              Vista {v === "free" ? "Free" : "Pro"}
-            </button>
-          ))}
-        </div>
+        {isPro ? (
+          <ProBadge />
+        ) : (
+          <div className="inline-flex rounded-full border border-border bg-surface p-1 text-sm">
+            {(["free", "pro"] as const).map((v) => (
+              <button
+                key={v}
+                onClick={() => setView(v)}
+                className={`rounded-full px-4 py-1.5 transition ${
+                  view === v ? "bg-primary text-primary-foreground" : "text-muted-foreground"
+                }`}
+              >
+                Vista {v === "free" ? "Free" : "Pro"}
+              </button>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Improvement banner */}
@@ -50,8 +62,8 @@ function Vacantes() {
           <Sparkles className="mt-0.5 h-5 w-5 text-warning" />
           <p className="text-sm">
             Tu match con <span className="font-medium">{MOCK_TARGET.company}</span> subiría de{" "}
-            <span className="font-medium">51%</span> a <span className="font-medium text-success">74%</span>{" "}
-            aplicando las 3 mejoras de tu CV.
+            <span className="font-medium">51%</span> a{" "}
+            <span className="font-medium text-success">74%</span> aplicando las 3 mejoras de tu CV.
           </p>
         </div>
         <Link
@@ -65,7 +77,7 @@ function Vacantes() {
       {/* Vacancy cards */}
       <div className="mt-6 grid gap-4">
         {MOCK_VACANCIES.map((v, i) => {
-          const locked = view === "free" && v.locked;
+          const locked = !isPro && view === "free" && v.locked;
           return (
             <motion.div
               key={v.id}
@@ -131,14 +143,14 @@ function Vacantes() {
         })}
       </div>
 
-      {view === "free" && (
+      {!isPro && view === "free" && (
         <div className="mt-6 rounded-xl border border-primary/40 bg-primary/10 p-5 text-center">
           <p className="text-sm">
             Desbloquea las <span className="font-medium">3 vacantes restantes</span>
           </p>
-          <button className="mt-3 inline-flex items-center gap-2 rounded-full bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground hover:opacity-90 transition">
-            Activar Pro · S/ 14.90 <ArrowRight className="h-4 w-4" />
-          </button>
+          <div className="mt-3 flex justify-center">
+            <DemoUpgradeButton label="Activar Pro · S/ 14.90" />
+          </div>
         </div>
       )}
     </div>

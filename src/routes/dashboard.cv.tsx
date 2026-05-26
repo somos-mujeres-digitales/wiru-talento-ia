@@ -2,16 +2,22 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { Sparkles, Plus, Trash2 } from "lucide-react";
 import { MOCK_USER } from "@/lib/mockData";
+import { useDemoMode } from "@/lib/demo-mode";
 
 export const Route = createFileRoute("/dashboard/cv")({
   component: CvBuilder,
 });
 
 function CvBuilder() {
+  const { runAutomationSequence } = useDemoMode();
   const [summary, setSummary] = useState(
     "Egresada de Administración con interés en el sector financiero y la atención al cliente.",
   );
-  const [skills, setSkills] = useState<string[]>(["Excel", "Atención al cliente", "Trabajo en equipo"]);
+  const [skills, setSkills] = useState<string[]>([
+    "Excel",
+    "Atención al cliente",
+    "Trabajo en equipo",
+  ]);
   const [skillInput, setSkillInput] = useState("");
 
   const addSkill = () => {
@@ -106,10 +112,18 @@ function CvBuilder() {
       </Section>
 
       <div className="mt-8 flex justify-end gap-3">
-        <button className="rounded-full border border-border bg-surface px-5 py-2.5 text-sm hover:bg-surface-elevated transition">
+        <button
+          type="button"
+          onClick={() => runAutomationSequence()}
+          className="rounded-full border border-border bg-surface px-5 py-2.5 text-sm hover:bg-surface-elevated transition"
+        >
           Guardar borrador
         </button>
-        <button className="rounded-full bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground hover:opacity-90 transition">
+        <button
+          type="button"
+          onClick={() => runAutomationSequence()}
+          className="rounded-full bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground hover:opacity-90 transition"
+        >
           Generar CV
         </button>
       </div>

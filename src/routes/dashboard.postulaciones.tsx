@@ -3,6 +3,7 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { Plus, Mic, X } from "lucide-react";
 import { MOCK_APPLICATIONS, type ApplicationStatus } from "@/lib/mockData";
+import { useDemoMode } from "@/lib/demo-mode";
 
 export const Route = createFileRoute("/dashboard/postulaciones")({
   component: Tracker,
@@ -17,9 +18,14 @@ const COLUMNS: { key: ApplicationStatus; label: string; tone: string }[] = [
 ];
 
 function Tracker() {
+  const { runAutomationSequence } = useDemoMode();
   const [items, setItems] = useState(MOCK_APPLICATIONS);
   const [open, setOpen] = useState(false);
-  const [draft, setDraft] = useState({ company: "", role: "", status: "applied" as ApplicationStatus });
+  const [draft, setDraft] = useState({
+    company: "",
+    role: "",
+    status: "applied" as ApplicationStatus,
+  });
 
   const onDragStart = (e: React.DragEvent, id: string) => e.dataTransfer.setData("id", id);
   const onDrop = (e: React.DragEvent, status: ApplicationStatus) => {
@@ -29,22 +35,24 @@ function Tracker() {
 
   const add = () => {
     if (!draft.company.trim()) return;
-    setItems((prev) => [
-      ...prev,
-      {
-        id: crypto.randomUUID(),
-        company: draft.company,
-        role: draft.role || "Sin título",
-        status: draft.status,
-        appliedAgo: "hoy",
-        nextAction: "Recién agregada",
-        match: 50,
-        initials: draft.company.slice(0, 2).toUpperCase(),
-        color: "oklch(0.65 0.16 230)",
-      },
-    ]);
-    setDraft({ company: "", role: "", status: "applied" });
-    setOpen(false);
+    runAutomationSequence(() => {
+      setItems((prev) => [
+        ...prev,
+        {
+          id: crypto.randomUUID(),
+          company: draft.company,
+          role: draft.role || "Sin título",
+          status: draft.status,
+          appliedAgo: "hoy",
+          nextAction: "Recién agregada",
+          match: 50,
+          initials: draft.company.slice(0, 2).toUpperCase(),
+          color: "oklch(0.65 0.16 230)",
+        },
+      ]);
+      setDraft({ company: "", role: "", status: "applied" });
+      setOpen(false);
+    });
   };
 
   return (
@@ -133,14 +141,21 @@ function Tracker() {
       {/* Modal */}
       {open && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/70 p-4">
-          <motion.div
+          <motion.form
             initial={{ opacity: 0, scale: 0.96 }}
             animate={{ opacity: 1, scale: 1 }}
+            onSubmit={(e) => {
+              e.preventDefault();
+              add();
+            }}
             className="w-full max-w-md rounded-2xl border border-border bg-surface p-6"
           >
             <div className="flex items-center justify-between">
               <h2 className="text-lg font-medium">Nueva postulación</h2>
-              <button onClick={() => setOpen(false)} className="text-muted-foreground hover:text-foreground">
+              <button
+                onClick={() => setOpen(false)}
+                className="text-muted-foreground hover:text-foreground"
+              >
                 <X className="h-4 w-4" />
               </button>
             </div>
@@ -159,21 +174,25 @@ function Tracker() {
               />
               <select
                 value={draft.status}
-                onChange={(e) => setDraft({ ...draft, status: e.target.value as ApplicationStatus })}
+                onChange={(e) =>
+                  setDraft({ ...draft, status: e.target.value as ApplicationStatus })
+                }
                 className="w-full rounded-lg border border-border bg-background px-3 py-2.5 text-sm outline-none focus:border-primary"
               >
                 {COLUMNS.map((c) => (
-                  <option key={c.key} value={c.key}>{c.label}</option>
+                  <option key={c.key} value={c.key}>
+                    {c.label}
+                  </option>
                 ))}
               </select>
               <button
-                onClick={add}
+                type="submit"
                 className="w-full rounded-full bg-primary py-2.5 text-sm font-medium text-primary-foreground hover:opacity-90 transition"
               >
                 Guardar
               </button>
             </div>
-          </motion.div>
+          </motion.form>
         </div>
       )}
     </div>

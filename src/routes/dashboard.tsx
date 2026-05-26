@@ -1,7 +1,18 @@
 import { createFileRoute, Outlet, Link, useLocation } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Home, FileText, BarChart3, Briefcase, ClipboardList, Mic, Plus, ChevronDown } from "lucide-react";
+import {
+  Home,
+  FileText,
+  BarChart3,
+  Briefcase,
+  ClipboardList,
+  Mic,
+  Plus,
+  ChevronDown,
+} from "lucide-react";
 import { WiruLogo } from "@/components/WiruLogo";
+import { DemoUpgradeButton, ProBadge, ResetDemoButton } from "@/components/demo-mode";
+import { useDemoMode } from "@/lib/demo-mode";
 import { MOCK_TARGET, MOCK_USER } from "@/lib/mockData";
 
 export const Route = createFileRoute("/dashboard")({
@@ -20,6 +31,7 @@ const NAV = [
 function DashboardLayout() {
   const location = useLocation();
   const [name, setName] = useState(MOCK_USER.name);
+  const { isPro } = useDemoMode();
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -29,7 +41,9 @@ function DashboardLayout() {
           const u = JSON.parse(raw);
           if (u.name) setName(u.name);
         }
-      } catch {}
+      } catch (error) {
+        void error;
+      }
     }
   }, []);
 
@@ -85,9 +99,12 @@ function DashboardLayout() {
         </nav>
 
         <div className="border-t border-sidebar-border p-4">
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-primary/15 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide text-primary">
-            ★ 1 crédito gratis
-          </span>
+          <div className="flex flex-wrap items-center gap-2">
+            {isPro ? <ProBadge /> : <DemoUpgradeButton label="Pasar a Pro" />}
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-primary/15 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide text-primary">
+              ★ 1 crédito gratis
+            </span>
+          </div>
           <div className="mt-3 flex items-center gap-2.5">
             <div
               className="flex h-8 w-8 items-center justify-center rounded-full text-xs font-semibold"
@@ -100,19 +117,26 @@ function DashboardLayout() {
               <p className="truncate text-xs text-text-muted">{MOCK_USER.email}</p>
             </div>
           </div>
+          <div className="mt-3 flex justify-end">
+            <ResetDemoButton />
+          </div>
         </div>
       </aside>
 
       {/* Mobile top bar */}
       <div className="fixed inset-x-0 top-0 z-30 flex items-center justify-between border-b border-border bg-background/95 px-4 py-3 backdrop-blur md:hidden">
-        <Link to="/"><WiruLogo /></Link>
+        <Link to="/">
+          <WiruLogo />
+        </Link>
         <select
           value={location.pathname}
           onChange={(e) => (window.location.href = e.target.value)}
           className="rounded-lg border border-border bg-surface px-2 py-1.5 text-xs"
         >
           {NAV.map((n) => (
-            <option key={n.to} value={n.to}>{n.label}</option>
+            <option key={n.to} value={n.to}>
+              {n.label}
+            </option>
           ))}
         </select>
       </div>
