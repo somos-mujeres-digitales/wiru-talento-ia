@@ -1,5 +1,6 @@
 import { createFileRoute, Outlet, Link, useLocation } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
+import { getSessionUser } from "@/lib/session";
 import {
   Home,
   FileText,
@@ -31,15 +32,24 @@ const NAV = [
 function DashboardLayout() {
   const location = useLocation();
   const [name, setName] = useState(MOCK_USER.name);
+  const [email, setEmail] = useState(MOCK_USER.email || "");
   const { isPro } = useDemoMode();
 
   useEffect(() => {
     if (typeof window !== "undefined") {
       try {
+        const session = getSessionUser();
+        if (session) {
+          if (session.name) setName(session.name as string);
+          if (session.email) setEmail(session.email as string);
+          return;
+        }
+
         const raw = localStorage.getItem("wiru_user");
         if (raw) {
           const u = JSON.parse(raw);
           if (u.name) setName(u.name);
+          if (u.email) setEmail(u.email);
         }
       } catch (error) {
         void error;
@@ -49,8 +59,8 @@ function DashboardLayout() {
 
   return (
     <div className="flex min-h-screen bg-background text-foreground">
-      {/* Sidebar */}
-      <aside className="hidden w-64 shrink-0 flex-col border-r border-sidebar-border bg-sidebar md:flex">
+      {/* Sidebar (fixed on desktop) */}
+      <aside className="hidden md:flex fixed left-0 top-0 bottom-0 w-64 shrink-0 flex-col border-r border-sidebar-border bg-sidebar z-20">
         <div className="px-5 py-5">
           <Link to="/">
             <WiruLogo />
@@ -110,11 +120,11 @@ function DashboardLayout() {
               className="flex h-8 w-8 items-center justify-center rounded-full text-xs font-semibold"
               style={{ background: "var(--gradient-primary)", color: "var(--background)" }}
             >
-              {name.charAt(0)}
+              {(name && name.charAt(0)) || "W"}
             </div>
             <div className="min-w-0">
               <p className="truncate text-sm font-medium">{name}</p>
-              <p className="truncate text-xs text-text-muted">{MOCK_USER.email}</p>
+              <p className="truncate text-xs text-text-muted">{email}</p>
             </div>
           </div>
           <div className="mt-3 flex justify-end">
@@ -141,8 +151,8 @@ function DashboardLayout() {
         </select>
       </div>
 
-      {/* Main */}
-      <main className="flex-1 overflow-x-hidden pt-14 md:pt-0">
+      {/* Main (shifted right on desktop to make room for fixed sidebar) */}
+      <main className="flex-1 overflow-x-hidden pt-14 md:pt-0 md:ml-64">
         <Outlet />
       </main>
     </div>

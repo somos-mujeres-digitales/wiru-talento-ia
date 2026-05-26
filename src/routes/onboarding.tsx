@@ -1,6 +1,7 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { motion, AnimatePresence } from "framer-motion";
 import { useState } from "react";
+import { useSessionState, clearSessionUser } from "@/lib/session";
 import { ArrowRight, ArrowLeft, Check, Mail } from "lucide-react";
 import { WiruLogo } from "@/components/WiruLogo";
 import { SECTORS, STAGES } from "@/lib/mockData";
@@ -14,10 +15,10 @@ function Onboarding() {
   const navigate = useNavigate();
   const { runAutomationSequence } = useDemoMode();
   const [step, setStep] = useState(1);
-  const [name, setName] = useState("");
-  const [sectors, setSectors] = useState<string[]>([]);
-  const [stage, setStage] = useState<string | null>(null);
-  const [email, setEmail] = useState("");
+  const [name, setName] = useSessionState<string>("wiru_name", "");
+  const [sectors, setSectors] = useSessionState<string[]>("wiru_sectors", []);
+  const [stage, setStage] = useSessionState<string | null>("wiru_stage", null);
+  const [email, setEmail] = useSessionState<string>("wiru_email", "");
   const [password, setPassword] = useState("");
   const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
 
@@ -53,6 +54,8 @@ function Onboarding() {
             provider,
           }),
         );
+        // clear temporary session values after account creation
+        clearSessionUser();
       }
       navigate({ to: "/dashboard" });
     });

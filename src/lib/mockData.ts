@@ -1,7 +1,7 @@
 export const MOCK_USER = {
   name: "María Fernanda",
   fullName: "María Fernanda Quispe",
-  email: "maria.quispe@gmail.com",
+  email: "",
   location: "Cusco",
   stage: "Recién egresada",
   career: "Administración",
@@ -14,8 +14,15 @@ export const MOCK_TARGET = {
 };
 
 export const MOCK_COMPANIES = [
-  "Caja Cusco", "BCP", "BBVA", "Scotiabank", "Marriott",
-  "Casa Andina", "Plaza Vea", "LATAM", "Sodimac",
+  "Caja Cusco",
+  "BCP",
+  "BBVA",
+  "Scotiabank",
+  "Marriott",
+  "Casa Andina",
+  "Plaza Vea",
+  "LATAM",
+  "Sodimac",
 ];
 
 export const MOCK_CV_SCORE = {
@@ -31,7 +38,8 @@ export const MOCK_CV_SCORE = {
     {
       type: "warning" as const,
       title: "Agrega LinkedIn y teléfono con prefijo +51",
-      detail: "Falta tu LinkedIn y el prefijo internacional para que reclutadores te ubiquen rápido.",
+      detail:
+        "Falta tu LinkedIn y el prefijo internacional para que reclutadores te ubiquen rápido.",
     },
     {
       type: "warning" as const,
@@ -53,7 +61,8 @@ export const MOCK_VACANCIES = [
     id: "1",
     company: "Caja Cusco",
     role: "Ejecutiva de Atención al Cliente",
-    description: "Atención presencial en agencias del Cusco. Asesoría de productos de ahorro y crédito.",
+    description:
+      "Atención presencial en agencias del Cusco. Asesoría de productos de ahorro y crédito.",
     requirements: ["Atención al cliente", "Manejo de Excel", "Trato amable"],
     location: "Cusco — Plaza de Armas",
     closing: "15 MAY",
@@ -162,10 +171,20 @@ export const MOCK_INTERVIEW_QUESTIONS = [
 
 export const SECTORS = [
   { id: "fin", icon: "🏦", title: "Sector financiero", subtitle: "Bancos, cajas, financieras" },
-  { id: "tur", icon: "🏨", title: "Turismo y hotelería", subtitle: "Hoteles, restaurantes, agencias" },
+  {
+    id: "tur",
+    icon: "🏨",
+    title: "Turismo y hotelería",
+    subtitle: "Hoteles, restaurantes, agencias",
+  },
   { id: "ret", icon: "🏪", title: "Retail y comercio", subtitle: "Tiendas, supermercados, ventas" },
   { id: "sal", icon: "🏥", title: "Salud", subtitle: "Clínicas, farmacias, laboratorios" },
-  { id: "pub", icon: "🏛️", title: "Sector público", subtitle: "Municipalidades, gobiernos regionales" },
+  {
+    id: "pub",
+    icon: "🏛️",
+    title: "Sector público",
+    subtitle: "Municipalidades, gobiernos regionales",
+  },
   { id: "tec", icon: "💻", title: "Tecnología", subtitle: "Startups, empresas de software" },
 ];
 
